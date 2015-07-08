@@ -1,0 +1,71 @@
+<idea-plugin version="2" url="https://github.com/Haehnchen/idea-php-oxid-plugin">
+  <id>de.espend.idea.oxid</id>
+  <name>OXID Plugin</name>
+  <version>0.1</version>
+  <vendor email="daniel@espendiller.net" url="http://espend.de">Daniel Espendiller</vendor>
+
+  <description><![CDATA[
+      <h1>OXID Plugin</h1><br>
+      <br/>
+      <a href="https://github.com/Haehnchen/idea-php-oxid-plugin/issues">Issues</a>
+
+      <br>
+      Install <a href="http://plugins.jetbrains.com/plugin/7219">Symfony2 Plugin</a>
+      <br/><br/>
+
+      <h2>Dependencies</h2>
+      <ul>
+        <li><a href="http://plugins.jetbrains.com/plugin/7219">Symfony2 Plugin</a></li>
+      </ul>
+
+      <h2>Features</h2>
+      <ul>
+        <li>Smarty: xxx</li>
+      </ul>
+
+    ]]></description>
+
+  <change-notes><![CDATA[
+
+
+<h2>0.1</h2>
+<ul>
+    <li>Initial release with dep on <a href="http://plugins.jetbrains.com/plugin/7219">Symfony2 Plugin</a></li>
+</ul>
+
+    ]]>
+  </change-notes>
+
+  <!-- please see http://confluence.jetbrains.com/display/IDEADEV/Build+Number+Ranges for description -->
+  <idea-version since-build="138.0"/>
+
+  <!-- please see http://confluence.jetbrains.com/display/IDEADEV/Plugin+Compatibility+with+IntelliJ+Platform+Products
+       on how to target different products -->
+  <!-- uncomment to enable plugin in all products
+  <depends>com.intellij.modules.lang</depends>
+  -->
+
+  <extensions defaultExtensionNs="com.intellij">
+
+      <completion.contributor language="Smarty" implementationClass="de.espend.idea.oxid.completion.SmartyFileCompletionProvider"/>
+      <gotoDeclarationHandler implementation="de.espend.idea.oxid.navigation.SmartyGoToHandler"/>
+
+  </extensions>
+
+  <depends>com.jetbrains.php</depends>
+  <depends>com.intellij.modules.platform</depends>
+  <depends>fr.adrienbrault.idea.symfony2plugin</depends>
+
+  <application-components>
+    <!-- Add your application components here -->
+  </application-components>
+
+  <project-components>
+    <!-- Add your project components here -->
+  </project-components>
+
+  <actions>
+    <!-- Add your actions here -->
+  </actions>
+
+</idea-plugin>
