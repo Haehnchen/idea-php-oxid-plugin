@@ -1,27 +1,24 @@
 package de.espend.idea.oxid.utils;
 
+import com.intellij.codeInsight.lookup.LookupElementBuilder;
 import com.intellij.openapi.project.Project;
 import com.intellij.openapi.vfs.VfsUtil;
 import com.intellij.openapi.vfs.VirtualFile;
 import com.intellij.psi.PsiElement;
 import com.intellij.psi.PsiFile;
+import com.intellij.psi.PsiManager;
 import com.intellij.psi.search.FileTypeIndex;
 import com.intellij.psi.search.FilenameIndex;
 import com.intellij.psi.search.GlobalSearchScope;
-import com.intellij.psi.util.PsiTreeUtil;
 import com.intellij.util.indexing.FileBasedIndex;
-import com.jetbrains.php.lang.psi.elements.ArrayCreationExpression;
-import com.jetbrains.php.lang.psi.elements.GroupStatement;
-import com.jetbrains.php.lang.psi.elements.PhpPsiElement;
-import com.jetbrains.php.lang.psi.elements.Statement;
-import com.jetbrains.php.lang.psi.elements.impl.AssignmentExpressionImpl;
 import com.jetbrains.smarty.SmartyFileType;
-import fr.adrienbrault.idea.symfony2plugin.util.PhpElementsUtil;
-import fr.adrienbrault.idea.symfony2plugin.util.PsiElementUtils;
 import org.apache.commons.lang.StringUtils;
 import org.jetbrains.annotations.NotNull;
 
+import java.util.ArrayList;
+import java.util.Collection;
 import java.util.Map;
+import java.util.Set;
 
 /**
  * @author Daniel Espendiller <daniel@espendiller.net>
@@ -77,6 +74,37 @@ public class TemplateUtil {
 
         String fileName = StringUtils.join(newArray, "/");
         smartyTemplateVisitor.visitFile(virtualFile, fileName);
+    }
+
+    @NotNull
+    public static Collection<SmartyBlockUtil.SmartyBlock> getBlocksTemplateName(@NotNull Project project, final @NotNull String templateName) {
+
+        final Collection<SmartyBlockUtil.SmartyBlock> blocks = new ArrayList<SmartyBlockUtil.SmartyBlock>();
+
+        for (VirtualFile virtualFile : getFilesByTemplateName(project, templateName)) {
+            PsiFile file = PsiManager.getInstance(project).findFile(virtualFile);
+            if(file != null) {
+                blocks.addAll(SmartyBlockUtil.getFileBlocks(file));
+            }
+        }
+
+        return blocks;
+    }
+
+    public static Collection<VirtualFile> getFilesByTemplateName(@NotNull Project project, final @NotNull String templateName) {
+
+        final Collection<VirtualFile> files = new ArrayList<VirtualFile>();
+
+        TemplateUtil.collectFiles(project, new TemplateUtil.SmartyTemplateVisitor() {
+            @Override
+            public void visitFile(VirtualFile virtualFile, String fileName) {
+                if(fileName.equalsIgnoreCase(templateName)) {
+                    files.add(virtualFile);
+                }
+            }
+        });
+
+        return files;
     }
 
     public interface SmartyTemplateVisitor {

@@ -1,5 +1,6 @@
 package de.espend.idea.oxid.navigation;
 
+import com.intellij.codeInsight.lookup.LookupElementBuilder;
 import com.intellij.codeInsight.navigation.actions.GotoDeclarationHandler;
 import com.intellij.openapi.actionSystem.DataContext;
 import com.intellij.openapi.editor.Editor;
@@ -8,18 +9,26 @@ import com.intellij.openapi.vfs.VirtualFile;
 import com.intellij.psi.PsiElement;
 import com.intellij.psi.PsiFile;
 import com.intellij.psi.PsiManager;
+import com.intellij.psi.util.PsiTreeUtil;
 import com.jetbrains.php.lang.PhpFileType;
+import com.jetbrains.php.lang.psi.elements.ArrayCreationExpression;
 import com.jetbrains.php.lang.psi.elements.StringLiteralExpression;
 import com.jetbrains.smarty.SmartyFileType;
+import de.espend.idea.oxid.OxidPluginIcons;
 import de.espend.idea.oxid.OxidProjectComponent;
 import de.espend.idea.oxid.utils.ModuleUtil;
 import de.espend.idea.oxid.utils.PhpMetadataUtil;
+import de.espend.idea.oxid.utils.SmartyBlockUtil;
+import de.espend.idea.oxid.utils.TemplateUtil;
+import fr.adrienbrault.idea.symfony2plugin.util.PhpElementsUtil;
 import org.apache.commons.lang.StringUtils;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.HashSet;
+import java.util.Set;
 
 /**
  * @author Daniel Espendiller <daniel@espendiller.net>
@@ -55,9 +64,68 @@ public class PhpGoToHandler implements GotoDeclarationHandler {
                 attachTemplateFileTypes((StringLiteralExpression) parent, psiElements);
             }
 
+            // "blocks" => [{"template" => 'foo'}]
+            if(PhpMetadataUtil.isInTemplateWithKey((StringLiteralExpression) parent, "template")) {
+                attachTemplateFile((StringLiteralExpression) parent, psiElements);
+            }
+
+            // "blocks" => [{"block" => 'foo'}]
+            if(PhpMetadataUtil.isInTemplateWithKey((StringLiteralExpression) parent, "block")) {
+                attachTemplateBlocks((StringLiteralExpression) parent, psiElements);
+            }
+
         }
 
         return psiElements.toArray(new PsiElement[psiElements.size()]);
+    }
+
+    private void attachTemplateBlocks(@NotNull final StringLiteralExpression psiElement, @NotNull final Collection<PsiElement> psiElements) {
+
+        final String contents = getPathFormattedString(psiElement);
+        if (contents == null) {
+            return;
+        }
+
+
+        ArrayCreationExpression arrayCreation = PsiTreeUtil.getParentOfType(psiElement, ArrayCreationExpression.class);
+        if(arrayCreation == null) {
+            return;
+        }
+
+        String template = PhpElementsUtil.getArrayValueString(arrayCreation, "template");
+        if(template == null) {
+            return;
+        }
+
+        for (SmartyBlockUtil.SmartyBlock block : TemplateUtil.getBlocksTemplateName(psiElement.getProject(), template)) {
+            if(block.getName().equals(contents)) {
+                psiElements.add(block.getElement());
+            }
+        }
+
+    }
+
+    private void attachTemplateFile(@NotNull final StringLiteralExpression psiElement, @NotNull final Collection<PsiElement> psiElements) {
+
+        final String contents = getPathFormattedString(psiElement);
+        if (contents == null) {
+            return;
+        }
+
+        TemplateUtil.collectFiles(psiElement.getProject(), new TemplateUtil.SmartyTemplateVisitor() {
+            @Override
+            public void visitFile(VirtualFile virtualFile, String fileName) {
+                if(contents.equalsIgnoreCase(fileName)) {
+
+                    PsiFile file = PsiManager.getInstance(psiElement.getProject()).findFile(virtualFile);
+                    if(file != null) {
+                        psiElements.add(file);
+                    }
+
+                }
+            }
+        });
+
     }
 
     private void attachTemplateFileTypes(StringLiteralExpression psiElement, Collection<PsiElement> psiElements) {

@@ -6,6 +6,8 @@ import com.intellij.psi.search.PsiElementProcessor;
 import com.intellij.psi.util.PsiTreeUtil;
 import org.jetbrains.annotations.NotNull;
 
+import java.util.ArrayList;
+import java.util.Collection;
 import java.util.HashSet;
 import java.util.Set;
 
@@ -14,9 +16,9 @@ import java.util.Set;
  */
 public class SmartyBlockUtil {
 
-    public static Set<SmartyBlock> getFileBlocks(@NotNull PsiFile psiFile) {
+    public static Collection<SmartyBlock> getFileBlocks(@NotNull PsiFile psiFile) {
 
-        final Set<SmartyBlock> blockNameSet = new HashSet<SmartyBlock>();
+        final Collection<SmartyBlock> blockNameSet = new ArrayList<SmartyBlock>();
 
         PsiTreeUtil.processElements(psiFile, new PsiElementProcessor() {
             @Override
