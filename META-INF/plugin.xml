@@ -48,8 +48,10 @@
   <extensions defaultExtensionNs="com.intellij">
 
       <completion.contributor language="Smarty" implementationClass="de.espend.idea.oxid.completion.SmartyFileCompletionProvider"/>
-      <gotoDeclarationHandler implementation="de.espend.idea.oxid.navigation.SmartyGoToHandler"/>
+      <completion.contributor language="PHP" implementationClass="de.espend.idea.oxid.completion.PhpCompletionProvider"/>
 
+      <gotoDeclarationHandler implementation="de.espend.idea.oxid.navigation.SmartyGoToHandler"/>
+      <gotoDeclarationHandler implementation="de.espend.idea.oxid.navigation.PhpGoToHandler"/>
   </extensions>
 
   <depends>com.jetbrains.php</depends>

@@ -1,16 +1,23 @@
 package de.espend.idea.oxid.utils;
 
+import com.intellij.openapi.vfs.VirtualFile;
 import com.intellij.psi.PsiElement;
 import com.intellij.psi.PsiFile;
 import com.intellij.psi.util.PsiTreeUtil;
+import com.jetbrains.php.lang.parser.PhpElementTypes;
 import com.jetbrains.php.lang.psi.elements.ArrayCreationExpression;
 import com.jetbrains.php.lang.psi.elements.GroupStatement;
 import com.jetbrains.php.lang.psi.elements.PhpPsiElement;
 import com.jetbrains.php.lang.psi.elements.Statement;
 import com.jetbrains.php.lang.psi.elements.impl.AssignmentExpressionImpl;
+import de.espend.idea.oxid.dict.metadata.MetadataBlock;
+import de.espend.idea.oxid.dict.metadata.MetadataSetting;
 import fr.adrienbrault.idea.symfony2plugin.util.PhpElementsUtil;
 import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 
+import java.util.ArrayList;
+import java.util.Collection;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -19,7 +26,73 @@ import java.util.Map;
  */
 public class MetadataUtil {
 
+    public static Collection<MetadataSetting> getSettings(@NotNull PsiFile psiFile) {
+
+        final Collection<MetadataSetting> blocks = new ArrayList<MetadataSetting>();
+
+        visitMetadataKey(psiFile, "settings", new MetadataKeyVisitor() {
+            @Override
+            public void visit(@NotNull ArrayCreationExpression arrayCreationExpression) {
+
+                for (PhpPsiElement phpPsiElement : PsiTreeUtil.getChildrenOfTypeAsList(arrayCreationExpression, PhpPsiElement.class)) {
+
+                    if(phpPsiElement.getNode().getElementType() != PhpElementTypes.ARRAY_VALUE) {
+                        continue;
+                    }
+
+                    PhpPsiElement firstPsiChild = phpPsiElement.getFirstPsiChild();
+                    if(!(firstPsiChild instanceof ArrayCreationExpression)) {
+                        continue;
+                    }
+
+                    MetadataSetting block = MetadataSetting.create(PhpElementsUtil.getArrayKeyValueMap((ArrayCreationExpression) firstPsiChild));
+                    if(block != null) {
+                        blocks.add(block);
+                    }
+
+                }
+
+            }
+        });
+
+        return blocks;
+    }
+
+    public static Collection<MetadataBlock> getBlocks(@NotNull PsiFile psiFile) {
+
+        final Collection<MetadataBlock> blocks = new ArrayList<MetadataBlock>();
+
+        visitMetadataKey(psiFile, "blocks", new MetadataKeyVisitor() {
+            @Override
+            public void visit(@NotNull ArrayCreationExpression arrayCreationExpression) {
+
+                for (PhpPsiElement phpPsiElement : PsiTreeUtil.getChildrenOfTypeAsList(arrayCreationExpression, PhpPsiElement.class)) {
+
+                    if(phpPsiElement.getNode().getElementType() != PhpElementTypes.ARRAY_VALUE) {
+                        continue;
+                    }
+
+                    PhpPsiElement firstPsiChild = phpPsiElement.getFirstPsiChild();
+                    if(!(firstPsiChild instanceof ArrayCreationExpression)) {
+                        continue;
+                    }
+
+                    MetadataBlock block = MetadataBlock.create(PhpElementsUtil.getArrayKeyValueMap((ArrayCreationExpression) firstPsiChild));
+                    if(block != null) {
+                        blocks.add(block);
+                    }
+
+                }
+
+            }
+        });
+
+        return blocks;
+    }
+
     public static Map<String, String> getMetadataKeyMap(@NotNull PsiFile psiFile, @NotNull String key) {
+
+        getBlocks(psiFile);
 
         final Map<String, String> values = new HashMap<String, String>();
 
@@ -58,8 +131,26 @@ public class MetadataUtil {
         }
     }
 
-    public static interface MetadataKeyVisitor {
-        public void visit(@NotNull ArrayCreationExpression arrayCreationExpression);
+    public interface MetadataKeyVisitor {
+        void visit(@NotNull ArrayCreationExpression arrayCreationExpression);
+    }
+
+    @Nullable
+    public static VirtualFile getModuleVendorFolderFromMetadata(@NotNull PsiFile psiFile) {
+
+        VirtualFile file = psiFile.getVirtualFile();
+        VirtualFile moduleFolder = file.getParent();
+
+        if(moduleFolder == null) {
+            return null;
+        }
+
+        VirtualFile module = moduleFolder.getParent();
+        if(module == null) {
+            return null;
+        }
+
+        return module;
     }
 
 }
