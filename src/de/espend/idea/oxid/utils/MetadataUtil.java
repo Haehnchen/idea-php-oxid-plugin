@@ -45,7 +45,7 @@ public class MetadataUtil {
                         continue;
                     }
 
-                    MetadataSetting block = MetadataSetting.create(PhpElementsUtil.getArrayKeyValueMap((ArrayCreationExpression) firstPsiChild));
+                    MetadataSetting block = MetadataSetting.create(firstPsiChild, PhpElementsUtil.getArrayKeyValueMap((ArrayCreationExpression) firstPsiChild));
                     if(block != null) {
                         blocks.add(block);
                     }
@@ -129,6 +129,39 @@ public class MetadataUtil {
                 }
             }
         }
+    }
+
+    public static void visitTranslationKey(@NotNull PsiFile psiFile, @NotNull TranslationKeyVisitor visitor) {
+
+        PsiElement childOfType = PsiTreeUtil.getChildOfType(psiFile, GroupStatement.class);
+        if(childOfType == null) {
+            return;
+        }
+
+        Statement[] childrenOfType = PsiTreeUtil.getChildrenOfType(childOfType, Statement.class);
+        if(childrenOfType == null) {
+            return;
+        }
+
+        for (Statement statement : childrenOfType) {
+            PsiElement assignmentExpr = statement.getFirstPsiChild();
+            if(assignmentExpr instanceof AssignmentExpressionImpl) {
+                PhpPsiElement variable = ((AssignmentExpressionImpl) assignmentExpr).getVariable();
+                if(variable != null && "aLang".equals(variable.getName())) {
+
+                    PhpPsiElement value = ((AssignmentExpressionImpl) assignmentExpr).getValue();
+                    if(value instanceof ArrayCreationExpression) {
+                        for (Map.Entry<String, PsiElement> entry : PhpElementsUtil.getArrayCreationKeyMap((ArrayCreationExpression) value).entrySet()) {
+                            visitor.visit(entry.getKey(), entry.getValue());
+                        }
+                    }
+                }
+            }
+        }
+    }
+
+    public interface TranslationKeyVisitor {
+        void visit(@NotNull String name, @NotNull PsiElement value);
     }
 
     public interface MetadataKeyVisitor {

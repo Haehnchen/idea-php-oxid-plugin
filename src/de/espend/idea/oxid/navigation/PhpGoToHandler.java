@@ -1,6 +1,5 @@
 package de.espend.idea.oxid.navigation;
 
-import com.intellij.codeInsight.lookup.LookupElementBuilder;
 import com.intellij.codeInsight.navigation.actions.GotoDeclarationHandler;
 import com.intellij.openapi.actionSystem.DataContext;
 import com.intellij.openapi.editor.Editor;
@@ -9,17 +8,17 @@ import com.intellij.openapi.vfs.VirtualFile;
 import com.intellij.psi.PsiElement;
 import com.intellij.psi.PsiFile;
 import com.intellij.psi.PsiManager;
+import com.intellij.psi.search.FilenameIndex;
+import com.intellij.psi.search.GlobalSearchScope;
 import com.intellij.psi.util.PsiTreeUtil;
 import com.jetbrains.php.lang.PhpFileType;
 import com.jetbrains.php.lang.psi.elements.ArrayCreationExpression;
 import com.jetbrains.php.lang.psi.elements.StringLiteralExpression;
 import com.jetbrains.smarty.SmartyFileType;
-import de.espend.idea.oxid.OxidPluginIcons;
 import de.espend.idea.oxid.OxidProjectComponent;
-import de.espend.idea.oxid.utils.ModuleUtil;
-import de.espend.idea.oxid.utils.PhpMetadataUtil;
-import de.espend.idea.oxid.utils.SmartyBlockUtil;
-import de.espend.idea.oxid.utils.TemplateUtil;
+import de.espend.idea.oxid.dict.metadata.MetadataSetting;
+import de.espend.idea.oxid.utils.*;
+import fr.adrienbrault.idea.symfony2plugin.util.MethodMatcher;
 import fr.adrienbrault.idea.symfony2plugin.util.PhpElementsUtil;
 import org.apache.commons.lang.StringUtils;
 import org.jetbrains.annotations.NotNull;
@@ -27,8 +26,6 @@ import org.jetbrains.annotations.Nullable;
 
 import java.util.ArrayList;
 import java.util.Collection;
-import java.util.HashSet;
-import java.util.Set;
 
 /**
  * @author Daniel Espendiller <daniel@espendiller.net>
@@ -74,9 +71,52 @@ public class PhpGoToHandler implements GotoDeclarationHandler {
                 attachTemplateBlocks((StringLiteralExpression) parent, psiElements);
             }
 
+            // \oxConfig::getConfigParam()
+            // \oxConfig::setConfigParam()
+            if(new MethodMatcher.StringParameterRecursiveMatcher(parent, 0)
+                    .withSignature("\\oxConfig", "getConfigParam")
+                    .withSignature("\\oxConfig", "getConfigParam").match() != null) {
+
+                attachConfigs((StringLiteralExpression) parent, psiElements);
+            }
+
+            if (new MethodMatcher.StringParameterRecursiveMatcher(parent, 0)
+                    .withSignature("\\oxLang", "translateString")
+                    .match() != null) {
+
+                attachTranslations((StringLiteralExpression) parent, psiElements);
+            }
+
+
         }
 
         return psiElements.toArray(new PsiElement[psiElements.size()]);
+    }
+
+    private void attachTranslations(@NotNull StringLiteralExpression parent, @NotNull Collection<PsiElement> psiElements) {
+
+        String contents = parent.getContents();
+        if(StringUtils.isBlank(contents)) {
+            return;
+        }
+
+        psiElements.addAll(TranslationUtil.getTranslationTargets(parent.getProject(), contents));
+    }
+
+    private void attachConfigs(@NotNull StringLiteralExpression parent, @NotNull Collection<PsiElement> psiElements) {
+
+        String contents = parent.getContents();
+        if(StringUtils.isBlank(contents)) {
+            return;
+        }
+
+        for (PsiFile psiFile : FilenameIndex.getFilesByName(parent.getProject(), "metadata.php", GlobalSearchScope.allScope(parent.getProject()))) {
+            for (MetadataSetting setting : MetadataUtil.getSettings(psiFile)) {
+                if (contents.equals(setting.getName())) {
+                    psiElements.add(setting.getSource());
+                }
+            }
+        }
     }
 
     private void attachTemplateBlocks(@NotNull final StringLiteralExpression psiElement, @NotNull final Collection<PsiElement> psiElements) {
@@ -128,7 +168,7 @@ public class PhpGoToHandler implements GotoDeclarationHandler {
 
     }
 
-    private void attachTemplateFileTypes(StringLiteralExpression psiElement, Collection<PsiElement> psiElements) {
+    public static void attachTemplateFileTypes(StringLiteralExpression psiElement, Collection<PsiElement> psiElements) {
 
         final String contents = getPathFormattedString(psiElement);
         if (contents == null) {
@@ -138,7 +178,7 @@ public class PhpGoToHandler implements GotoDeclarationHandler {
         ModuleUtil.visitModuleTemplatesInMetadataScope(psiElement.getContainingFile(), new ContentEqualModuleFileVisitor(SmartyFileType.INSTANCE, contents, psiElement, psiElements));
     }
 
-    private void attachMetadataExtends(@NotNull final StringLiteralExpression psiElement, final @NotNull Collection<PsiElement> psiElements) {
+    public static void attachMetadataExtends(@NotNull final StringLiteralExpression psiElement, final @NotNull Collection<PsiElement> psiElements) {
 
         final String contents = getPathFormattedString(psiElement);
         if (contents == null) {
@@ -163,7 +203,7 @@ public class PhpGoToHandler implements GotoDeclarationHandler {
 
     }
 
-    private void attachAllFileTypes(@NotNull final StringLiteralExpression psiElement, final @NotNull Collection<PsiElement> psiElements, final FileType fileType) {
+    public static void attachAllFileTypes(@NotNull final StringLiteralExpression psiElement, final @NotNull Collection<PsiElement> psiElements, final FileType fileType) {
 
         final String contents = getPathFormattedString(psiElement);
         if (contents == null) {
@@ -174,7 +214,7 @@ public class PhpGoToHandler implements GotoDeclarationHandler {
     }
 
     @Nullable
-    private String getPathFormattedString(@NotNull StringLiteralExpression psiElement) {
+    private static String getPathFormattedString(@NotNull StringLiteralExpression psiElement) {
         String contents = psiElement.getContents();
         if(StringUtils.isBlank(contents)) {
             return null;

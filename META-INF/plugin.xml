@@ -52,6 +52,12 @@
 
       <gotoDeclarationHandler implementation="de.espend.idea.oxid.navigation.SmartyGoToHandler"/>
       <gotoDeclarationHandler implementation="de.espend.idea.oxid.navigation.PhpGoToHandler"/>
+      
+<localInspection groupPath="Oxid" shortName="Oxid.Metadata" displayName="Oxid Metadata"
+                       groupName="Oxid"
+                       enabledByDefault="true" level="WARNING"
+                       implementationClass="de.espend.idea.oxid.inspection.OxidMetadataFileInspection"/>
+
   </extensions>
 
   <depends>com.jetbrains.php</depends>

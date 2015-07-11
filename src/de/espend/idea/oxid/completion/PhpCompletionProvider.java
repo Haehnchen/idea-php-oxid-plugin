@@ -10,6 +10,10 @@ import com.intellij.openapi.vfs.VirtualFileVisitor;
 import com.intellij.patterns.PlatformPatterns;
 import com.intellij.psi.PsiDirectory;
 import com.intellij.psi.PsiElement;
+import com.intellij.psi.PsiFile;
+import com.intellij.psi.PsiManager;
+import com.intellij.psi.search.FilenameIndex;
+import com.intellij.psi.search.GlobalSearchScope;
 import com.intellij.psi.util.PsiTreeUtil;
 import com.intellij.util.ProcessingContext;
 import com.jetbrains.php.lang.PhpFileType;
@@ -17,7 +21,10 @@ import com.jetbrains.php.lang.psi.elements.*;
 import com.jetbrains.smarty.SmartyFileType;
 import de.espend.idea.oxid.OxidPluginIcons;
 import de.espend.idea.oxid.OxidProjectComponent;
+import de.espend.idea.oxid.dict.metadata.MetadataSetting;
 import de.espend.idea.oxid.utils.*;
+import fr.adrienbrault.idea.symfony2plugin.Symfony2Icons;
+import fr.adrienbrault.idea.symfony2plugin.util.MethodMatcher;
 import fr.adrienbrault.idea.symfony2plugin.util.PhpElementsUtil;
 import org.apache.commons.lang.StringUtils;
 import org.jetbrains.annotations.NotNull;
@@ -175,6 +182,65 @@ public class PhpCompletionProvider extends CompletionContributor {
                 }
         );
 
+        // \oxConfig::getConfigParam()
+        // \oxConfig::setConfigParam()
+        extend(
+                CompletionType.BASIC, PlatformPatterns.psiElement(),
+                new CompletionProvider<CompletionParameters>() {
+                    @Override
+                    protected void addCompletions(final @NotNull CompletionParameters parameters, ProcessingContext context, final @NotNull CompletionResultSet result) {
+
+                        PsiElement originalPosition = parameters.getOriginalPosition();
+                        if(originalPosition == null || !OxidProjectComponent.isValidForProject(originalPosition)) {
+                            return;
+                        }
+
+                        if(new MethodMatcher.StringParameterRecursiveMatcher(originalPosition.getContext(), 0)
+                                .withSignature("\\oxConfig", "getConfigParam")
+                                .withSignature("\\oxConfig", "getConfigParam")
+                                .match() == null) {
+
+                            return;
+                        }
+
+                        Set<String> settings = new HashSet<String>();
+
+                        for (PsiFile psiFile : FilenameIndex.getFilesByName(originalPosition.getProject(), "metadata.php", GlobalSearchScope.allScope(originalPosition.getProject()))) {
+                            for (MetadataSetting setting : MetadataUtil.getSettings(psiFile)) {
+                                settings.add(setting.getName());
+                            }
+                        }
+
+                        for (String setting : settings) {
+                            result.addElement(LookupElementBuilder.create(setting).withIcon(OxidPluginIcons.OXID));
+                        }
+                    }
+                }
+        );
+
+        // \oxLang::translateString()
+        extend(
+                CompletionType.BASIC, PlatformPatterns.psiElement(),
+                new CompletionProvider<CompletionParameters>() {
+                    @Override
+                    protected void addCompletions(final @NotNull CompletionParameters parameters, ProcessingContext context, final @NotNull CompletionResultSet result) {
+
+                        PsiElement originalPosition = parameters.getOriginalPosition();
+                        if (originalPosition == null || !OxidProjectComponent.isValidForProject(originalPosition)) {
+                            return;
+                        }
+
+                        if (new MethodMatcher.StringParameterRecursiveMatcher(originalPosition.getContext(), 0)
+                                .withSignature("\\oxLang", "translateString")
+                                .match() == null) {
+
+                            return;
+                        }
+
+                        result.addAllElements(TranslationUtil.getTranslationLookupElements(originalPosition.getProject()));
+                    }
+                }
+        );
     }
 
     private static class ModuleFileParametersCompletionProvider extends CompletionProvider<CompletionParameters> {
