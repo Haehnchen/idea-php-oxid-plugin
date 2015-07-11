@@ -165,19 +165,7 @@ public class PhpCompletionProvider extends CompletionContributor {
                             return;
                         }
 
-
-                        Set<String> blocks = new HashSet<String>();
-
-                        for (SmartyBlockUtil.SmartyBlock smartyBlock : TemplateUtil.getBlocksTemplateName(parameters.getPosition().getProject(), template)) {
-                            if(!blocks.contains(smartyBlock.getName())) {
-                                blocks.add(smartyBlock.getName());
-                            }
-                        }
-
-                        for (String block : blocks) {
-                            result.addElement(LookupElementBuilder.create(block).withIcon(OxidPluginIcons.OXID).withTypeText("block", true));
-                        }
-
+                        result.addAllElements(TemplateUtil.getBlockFileLookupElements(parameters.getPosition().getProject(), template));
                     }
                 }
         );

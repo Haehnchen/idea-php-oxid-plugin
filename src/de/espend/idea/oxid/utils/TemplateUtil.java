@@ -1,5 +1,6 @@
 package de.espend.idea.oxid.utils;
 
+import com.intellij.codeInsight.lookup.LookupElement;
 import com.intellij.codeInsight.lookup.LookupElementBuilder;
 import com.intellij.openapi.project.Project;
 import com.intellij.openapi.vfs.VfsUtil;
@@ -12,13 +13,11 @@ import com.intellij.psi.search.FilenameIndex;
 import com.intellij.psi.search.GlobalSearchScope;
 import com.intellij.util.indexing.FileBasedIndex;
 import com.jetbrains.smarty.SmartyFileType;
+import de.espend.idea.oxid.OxidPluginIcons;
 import org.apache.commons.lang.StringUtils;
 import org.jetbrains.annotations.NotNull;
 
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.Map;
-import java.util.Set;
+import java.util.*;
 
 /**
  * @author Daniel Espendiller <daniel@espendiller.net>
@@ -109,6 +108,44 @@ public class TemplateUtil {
 
     public interface SmartyTemplateVisitor {
         public void visitFile(VirtualFile virtualFile, String fileName);
+    }
+
+    @NotNull
+    public static Set<String> getTemplateNames(@NotNull Project project, final @NotNull VirtualFile virtualFile) {
+
+        final Set<String> templates = new HashSet<String>();
+
+        TemplateUtil.collectFiles(project, new TemplateUtil.SmartyTemplateVisitor() {
+            @Override
+            public void visitFile(VirtualFile templateFile, String fileName) {
+                if(templateFile.equals(virtualFile)) {
+                    templates.add(fileName);
+                }
+
+            }
+        });
+
+        return templates;
+    }
+
+    public static Collection<LookupElement> getBlockFileLookupElements(@NotNull Project project, String... templateNames) {
+
+        Set<String> blocks = new HashSet<String>();
+
+        for (String template : new HashSet<String>(Arrays.asList(templateNames))) {
+            for (SmartyBlockUtil.SmartyBlock smartyBlock : TemplateUtil.getBlocksTemplateName(project, template)) {
+                if(!blocks.contains(smartyBlock.getName())) {
+                    blocks.add(smartyBlock.getName());
+                }
+            }
+        }
+
+        Collection<LookupElement> lookupElements = new ArrayList<LookupElement>();
+        for (String block : blocks) {
+            lookupElements.add(LookupElementBuilder.create(block).withIcon(OxidPluginIcons.OXID).withTypeText("block", true));
+        }
+
+        return lookupElements;
     }
 
 }

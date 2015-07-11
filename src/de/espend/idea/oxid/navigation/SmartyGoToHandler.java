@@ -9,6 +9,7 @@ import com.intellij.psi.PsiElement;
 import com.intellij.psi.PsiFile;
 import com.intellij.psi.PsiManager;
 import de.espend.idea.oxid.OxidProjectComponent;
+import de.espend.idea.oxid.utils.SmartyBlockUtil;
 import de.espend.idea.oxid.utils.SmartyPattern;
 import de.espend.idea.oxid.utils.TemplateUtil;
 import org.apache.commons.lang.StringUtils;
@@ -36,7 +37,27 @@ public class SmartyGoToHandler implements GotoDeclarationHandler {
             attachFiles(psiElements, psiElement);
         }
 
+        if(SmartyPattern.getBlockPattern().accepts(psiElement)) {
+            attachBlocks(psiElements, psiElement);
+        }
+
         return psiElements.toArray(new PsiElement[psiElements.size()]);
+    }
+
+    private void attachBlocks(@NotNull Collection<PsiElement> psiElements, @NotNull PsiElement psiElement) {
+
+        final String contents = psiElement.getText();
+        if(StringUtils.isBlank(contents)) {
+            return;
+        }
+
+        for (String templateName: TemplateUtil.getTemplateNames(psiElement.getProject(), psiElement.getContainingFile().getVirtualFile())) {
+            for (SmartyBlockUtil.SmartyBlock block : TemplateUtil.getBlocksTemplateName(psiElement.getProject(), templateName)) {
+                if(block.getName().equals(contents)) {
+                    psiElements.add(block.getElement());
+                }
+            }
+        }
     }
 
     private void attachFiles(@NotNull Collection<PsiElement> psiElements, @NotNull PsiElement psiElement) {

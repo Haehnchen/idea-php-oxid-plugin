@@ -15,8 +15,11 @@ import com.jetbrains.php.PhpIcons;
 import com.jetbrains.smarty.SmartyFile;
 import de.espend.idea.oxid.OxidPluginIcons;
 import de.espend.idea.oxid.OxidProjectComponent;
+import de.espend.idea.oxid.utils.SmartyBlockUtil;
+import de.espend.idea.oxid.utils.SmartyPattern;
 import de.espend.idea.oxid.utils.TemplateUtil;
 import fr.adrienbrault.idea.symfony2plugin.dic.RelatedPopupGotoLineMarker;
+import org.apache.commons.lang.StringUtils;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
@@ -47,25 +50,50 @@ public class SmartyTemplateLineMarkerProvider implements LineMarkerProvider {
                 attachFileContextMaker((SmartyFile) psiElement, collection);
             }
 
+            if(SmartyPattern.getBlockPattern().accepts(psiElement)) {
+                attachBlocks(psiElement, collection);
+            }
+
         }
+    }
+
+    private void attachBlocks(PsiElement psiElement, Collection<LineMarkerInfo> lineMarkerInfos) {
+
+        final String contents = psiElement.getText();
+        if(StringUtils.isBlank(contents)) {
+            return;
+        }
+
+        VirtualFile virtualFile = psiElement.getContainingFile().getVirtualFile();
+
+        Collection<PsiElement> psiElements = new ArrayList<PsiElement>();
+
+        for (String templateName: TemplateUtil.getTemplateNames(psiElement.getProject(), psiElement.getContainingFile().getVirtualFile())) {
+            for (SmartyBlockUtil.SmartyBlock block : TemplateUtil.getBlocksTemplateName(psiElement.getProject(), templateName)) {
+                if(block.getName().equals(contents)) {
+                    if(!virtualFile.equals(block.getElement().getContainingFile().getVirtualFile())) {
+                        psiElements.add(block.getElement());
+                    }
+                }
+            }
+        }
+
+        if(psiElements.size() == 0) {
+            return;
+        }
+
+        NavigationGutterIconBuilder<PsiElement> builder = NavigationGutterIconBuilder.create(PhpIcons.OVERRIDES).
+                setTargets(psiElements).
+                setTooltipText("Navigate to block");
+
+        lineMarkerInfos.add(builder.createLineMarkerInfo(psiElement));
     }
 
     private void attachFileContextMaker(SmartyFile smartyFile, @NotNull Collection<LineMarkerInfo> lineMarkerInfo) {
 
         final VirtualFile virtualFile = smartyFile.getVirtualFile();
 
-        final Set<String> templates = new HashSet<String>();
-
-        TemplateUtil.collectFiles(smartyFile.getProject(), new TemplateUtil.SmartyTemplateVisitor() {
-            @Override
-            public void visitFile(VirtualFile templateFile, String fileName) {
-                if(templateFile.equals(virtualFile)) {
-                    templates.add(fileName);
-                }
-
-            }
-        });
-
+        final Set<String> templates = TemplateUtil.getTemplateNames(smartyFile.getProject(), virtualFile);
         if(templates.size() == 0) {
             return;
         }
