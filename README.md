@@ -16,6 +16,7 @@ Install
 
 Screenshots
 ---------------------
-https://plugins.jetbrains.com/files/7853/screenshot_15125.png
-https://plugins.jetbrains.com/files/7853/screenshot_15124.png
-https://plugins.jetbrains.com/files/7853/screenshot_15126.png
+
+![PHP](https://plugins.jetbrains.com/files/7853/screenshot_15125.png)
+![Metadata](https://plugins.jetbrains.com/files/7853/screenshot_15124.png)
+![Smarty](https://plugins.jetbrains.com/files/7853/screenshot_15126.png)
