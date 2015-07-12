@@ -10,7 +10,7 @@
       <a href="https://github.com/Haehnchen/idea-php-oxid-plugin/issues">Issues</a>
 
       <br>
-      Install <a href="http://plugins.jetbrains.com/plugin/7219">Symfony2 Plugin</a>
+      Because of code sharing install <a href="http://plugins.jetbrains.com/plugin/7219">Symfony2 Plugin</a> and enable it per project
       <br/><br/>
 
       <h2>Dependencies</h2>
@@ -20,7 +20,16 @@
 
       <h2>Features</h2>
       <ul>
-        <li>Smarty: xxx</li>
+        <li>PHP: Periodically scans module metadata for class inheritance and exports them to ".phpstorm-oxid.meta.php" in your project root</li>
+        <li>PHP: Metadata file exists inspector in array values</li>
+        <li>PHP: oxLang::translateString support</li>
+        <li>PHP: TypeProvider, references for factory function: oxNew, oxRegistry::get</li>
+        <li>PHP: Custom class inheritance TypeProvider for factories that a extended by metafile</li>
+        <li>PHP: oxConfig::*ConfigParam</li>
+        <li>PHP: Completion and navigation in all metadata files; array key and value context</li>
+        <li>Smarty: Block references and linemarker</li>
+        <li>Smarty: File includes references</li>
+        <li>Smarty: File metadata parser for template related stuff</li>
       </ul>
 
     ]]></description>
