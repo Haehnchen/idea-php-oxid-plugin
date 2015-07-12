@@ -186,4 +186,23 @@ public class MetadataUtil {
         return module;
     }
 
+    @Nullable
+    public static VirtualFile getModuleDirectoryOnMetadata(@NotNull VirtualFile metadataFile) {
+
+        VirtualFile file = metadataFile;
+        for ( int i = 0; i <= 2; i++) {
+            file = file.getParent();
+            if(file == null) {
+                return null;
+            }
+        }
+
+        VirtualFile parent = metadataFile.getParent();
+        if(parent == null) {
+            return null;
+        }
+
+        return file;
+    }
+
 }

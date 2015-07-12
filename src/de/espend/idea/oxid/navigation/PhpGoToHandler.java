@@ -12,8 +12,7 @@ import com.intellij.psi.search.FilenameIndex;
 import com.intellij.psi.search.GlobalSearchScope;
 import com.intellij.psi.util.PsiTreeUtil;
 import com.jetbrains.php.lang.PhpFileType;
-import com.jetbrains.php.lang.psi.elements.ArrayCreationExpression;
-import com.jetbrains.php.lang.psi.elements.StringLiteralExpression;
+import com.jetbrains.php.lang.psi.elements.*;
 import com.jetbrains.smarty.SmartyFileType;
 import de.espend.idea.oxid.OxidProjectComponent;
 import de.espend.idea.oxid.dict.metadata.MetadataSetting;
@@ -87,10 +86,30 @@ public class PhpGoToHandler implements GotoDeclarationHandler {
                 attachTranslations((StringLiteralExpression) parent, psiElements);
             }
 
+            // oxNew();
+            // oxRegistry::get();
+            if (OxidUtil.isFactory((StringLiteralExpression) parent)) {
+                attachFactoryClasses((StringLiteralExpression) parent, psiElements);
+            }
 
         }
 
         return psiElements.toArray(new PsiElement[psiElements.size()]);
+    }
+
+    private void attachFactoryClasses(StringLiteralExpression parent, Collection<PsiElement> psiElements) {
+
+        String contents = parent.getContents();
+        if(StringUtils.isBlank(contents)) {
+            return;
+        }
+
+        PhpClass classInterface = PhpElementsUtil.getClassInterface(parent.getProject(), contents);
+        if(classInterface == null) {
+            return;
+        }
+
+        psiElements.add(classInterface);
     }
 
     private void attachTranslations(@NotNull StringLiteralExpression parent, @NotNull Collection<PsiElement> psiElements) {

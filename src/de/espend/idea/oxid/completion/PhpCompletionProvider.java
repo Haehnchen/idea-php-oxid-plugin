@@ -1,6 +1,7 @@
 package de.espend.idea.oxid.completion;
 
 import com.intellij.codeInsight.completion.*;
+import com.intellij.codeInsight.completion.impl.CamelHumpMatcher;
 import com.intellij.codeInsight.lookup.LookupElement;
 import com.intellij.codeInsight.lookup.LookupElementBuilder;
 import com.intellij.openapi.fileTypes.FileType;
@@ -16,7 +17,11 @@ import com.intellij.psi.search.FilenameIndex;
 import com.intellij.psi.search.GlobalSearchScope;
 import com.intellij.psi.util.PsiTreeUtil;
 import com.intellij.util.ProcessingContext;
+import com.jetbrains.php.PhpIndex;
+import com.jetbrains.php.completion.PhpClassLookupElement;
 import com.jetbrains.php.lang.PhpFileType;
+import com.jetbrains.php.lang.psi.PhpFile;
+import com.jetbrains.php.lang.psi.PhpPsiUtil;
 import com.jetbrains.php.lang.psi.elements.*;
 import com.jetbrains.smarty.SmartyFileType;
 import de.espend.idea.oxid.OxidPluginIcons;
@@ -26,11 +31,11 @@ import de.espend.idea.oxid.utils.*;
 import fr.adrienbrault.idea.symfony2plugin.Symfony2Icons;
 import fr.adrienbrault.idea.symfony2plugin.util.MethodMatcher;
 import fr.adrienbrault.idea.symfony2plugin.util.PhpElementsUtil;
+import fr.adrienbrault.idea.symfony2plugin.util.completion.PhpClassReferenceInsertHandler;
 import org.apache.commons.lang.StringUtils;
 import org.jetbrains.annotations.NotNull;
 
-import java.util.HashSet;
-import java.util.Set;
+import java.util.*;
 
 /**
  * @author Daniel Espendiller <daniel@espendiller.net>
@@ -202,6 +207,42 @@ public class PhpCompletionProvider extends CompletionContributor {
                         for (String setting : settings) {
                             result.addElement(LookupElementBuilder.create(setting).withIcon(OxidPluginIcons.OXID));
                         }
+                    }
+                }
+        );
+
+        // \oxLang::translateString()
+        extend(
+                CompletionType.BASIC, PlatformPatterns.psiElement(),
+                new CompletionProvider<CompletionParameters>() {
+                    @Override
+                    protected void addCompletions(final @NotNull CompletionParameters parameters, ProcessingContext context, final @NotNull CompletionResultSet result) {
+
+                        PsiElement originalPosition = parameters.getOriginalPosition();
+                        if (originalPosition == null || !OxidProjectComponent.isValidForProject(originalPosition)) {
+                            return;
+                        }
+
+                        PsiElement parent = originalPosition.getContext();
+                        if(!(parent instanceof StringLiteralExpression)) {
+                            return;
+                        }
+
+                        if(!OxidUtil.isFactory((StringLiteralExpression) parent)) {
+                            return;
+                        }
+
+                        String contents = ((StringLiteralExpression) parent).getContents();
+
+                        // @TODO: is there a class filter on oxid, so we provide completion only for
+                        // "extends" classes
+                        PhpIndex phpIndex = PhpIndex.getInstance(parent.getProject());
+                        for (String name : phpIndex.getAllClassNames(new CamelHumpMatcher(contents))) {
+                            for (PhpClass phpClass : phpIndex.getClassesByName(name)) {
+                                result.addElement(new PhpClassLookupElement(phpClass, true, PhpClassReferenceInsertHandler.getInstance()));
+                            }
+                        }
+
                     }
                 }
         );

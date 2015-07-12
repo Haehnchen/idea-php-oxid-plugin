@@ -54,7 +54,9 @@
       <gotoDeclarationHandler implementation="de.espend.idea.oxid.navigation.PhpGoToHandler"/>
 
       <codeInsight.lineMarkerProvider language="Smarty" implementationClass="de.espend.idea.oxid.navigation.SmartyTemplateLineMarkerProvider"/>
-      
+
+      <php.typeProvider2 implementation="de.espend.idea.oxid.types.OxidFactoryTypeProvider"/>
+
       <localInspection groupPath="Oxid" shortName="Oxid.Metadata" displayName="Oxid Metadata"
                        groupName="Oxid"
                        enabledByDefault="true" level="WARNING"
@@ -71,7 +73,9 @@
   </application-components>
 
   <project-components>
-    <!-- Add your project components here -->
+      <component>
+          <implementation-class>de.espend.idea.oxid.OxidProjectComponent</implementation-class>
+      </component>
   </project-components>
 
   <actions>
