@@ -106,7 +106,7 @@ public class PhpMetadataUtil {
             }
         }
 
-        return true;
+        return false;
     }
 
 }
