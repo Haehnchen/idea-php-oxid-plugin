@@ -168,22 +168,34 @@ public class MetadataUtil {
         void visit(@NotNull ArrayCreationExpression arrayCreationExpression);
     }
 
+    /**
+     * Find modules folder on "modules" or vendor structure
+     *
+     * @param psiFile metadata file
+     */
     @Nullable
     public static VirtualFile getModuleVendorFolderFromMetadata(@NotNull PsiFile psiFile) {
 
         VirtualFile file = psiFile.getVirtualFile();
-        VirtualFile moduleFolder = file.getParent();
 
-        if(moduleFolder == null) {
-            return null;
+        // save previous we
+        VirtualFile current = file;
+
+        for (VirtualFile parent = file.getParent(); parent != null; parent = parent.getParent()) {
+
+            if(parent.getName().equals("modules")) {
+                return current;
+            }
+
+            if(parent.isDirectory() && parent.findChild("vendormetadata.php") != null) {
+                return parent;
+            }
+
+            // we need to return previous PsiElement
+            current = parent;
         }
 
-        VirtualFile module = moduleFolder.getParent();
-        if(module == null) {
-            return null;
-        }
-
-        return module;
+        return null;
     }
 
     @Nullable
