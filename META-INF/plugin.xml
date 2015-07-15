@@ -1,7 +1,7 @@
 <idea-plugin version="2" url="https://github.com/Haehnchen/idea-php-oxid-plugin">
   <id>de.espend.idea.oxid</id>
   <name>OXID Plugin</name>
-  <version>0.1</version>
+  <version>0.2</version>
   <vendor email="daniel@espendiller.net" url="http://espend.de">Daniel Espendiller</vendor>
 
   <description><![CDATA[
@@ -36,6 +36,13 @@
 
   <change-notes><![CDATA[
 
+<h2>0.2</h2>
+<ul>
+    <li>proxy getArrayKeyValueMap for npe fix <a href="https://github.com/Haehnchen/idea-php-oxid-plugin/issues/1">#1</a></li>
+    <li>Recursive search for module or vendor module structure <a href="https://github.com/Haehnchen/idea-php-oxid-plugin/issues/2">#2</a></li>
+    <li>Support array key of "extend" in metadata <a href="https://github.com/Haehnchen/idea-php-oxid-plugin/issues/3">#3</a></li>
+    <li>Some performance improvements</li>
+</ul>
 
 <h2>0.1</h2>
 <ul>
