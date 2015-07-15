@@ -44,30 +44,44 @@ public class PhpGoToHandler implements GotoDeclarationHandler {
         PsiElement parent = psiElement.getParent();
         if(parent instanceof StringLiteralExpression) {
 
-            if(PhpMetadataUtil.isModuleKeyInFlatArray((StringLiteralExpression) parent, "extend")) {
-                attachMetadataExtends((StringLiteralExpression) parent, psiElements);
-            }
+            // in metadata.php
+            if(MetadataUtil.getMetadataFilePattern().accepts(parent)) {
 
-            if(PhpMetadataUtil.isModuleKeyInFlatArray((StringLiteralExpression) parent, "files")) {
-                attachAllFileTypes((StringLiteralExpression) parent, psiElements, PhpFileType.INSTANCE);
-            }
+                // ['extend' => ['key' => '<caret>'] ]
+                if(PhpMetadataUtil.isModuleKeyInFlatArray((StringLiteralExpression) parent, "extend")) {
+                    attachMetadataExtends((StringLiteralExpression) parent, psiElements);
+                }
 
-            if(PhpMetadataUtil.isModuleKeyInFlatArray((StringLiteralExpression) parent, "templates")) {
-                attachAllFileTypes((StringLiteralExpression) parent, psiElements, SmartyFileType.INSTANCE);
-            }
+                // ['files' => [...] ]
+                if(PhpMetadataUtil.isModuleKeyInFlatArray((StringLiteralExpression) parent, "files")) {
+                    attachAllFileTypes((StringLiteralExpression) parent, psiElements, PhpFileType.INSTANCE);
+                }
 
-            if(PhpMetadataUtil.isInTemplateWithKey((StringLiteralExpression) parent, "file")) {
-                attachTemplateFileTypes((StringLiteralExpression) parent, psiElements);
-            }
+                // ['templates' => [...] ]
+                if(PhpMetadataUtil.isModuleKeyInFlatArray((StringLiteralExpression) parent, "templates")) {
+                    attachAllFileTypes((StringLiteralExpression) parent, psiElements, SmartyFileType.INSTANCE);
+                }
 
-            // "blocks" => [{"template" => 'foo'}]
-            if(PhpMetadataUtil.isInTemplateWithKey((StringLiteralExpression) parent, "template")) {
-                attachTemplateFile((StringLiteralExpression) parent, psiElements);
-            }
+                // ['extend' => ['file' => '<caret>'] ]
+                if(PhpMetadataUtil.isInTemplateWithKey((StringLiteralExpression) parent, "file")) {
+                    attachTemplateFileTypes((StringLiteralExpression) parent, psiElements);
+                }
 
-            // "blocks" => [{"block" => 'foo'}]
-            if(PhpMetadataUtil.isInTemplateWithKey((StringLiteralExpression) parent, "block")) {
-                attachTemplateBlocks((StringLiteralExpression) parent, psiElements);
+                // "blocks" => [{"template" => 'foo'}]
+                if(PhpMetadataUtil.isInTemplateWithKey((StringLiteralExpression) parent, "template")) {
+                    attachTemplateFile((StringLiteralExpression) parent, psiElements);
+                }
+
+                // "blocks" => [{"block" => 'foo'}]
+                if(PhpMetadataUtil.isInTemplateWithKey((StringLiteralExpression) parent, "block")) {
+                    attachTemplateBlocks((StringLiteralExpression) parent, psiElements);
+                }
+
+                // ['extend' => ['key'] ]
+                if (PhpMetadataUtil.isExtendKey((StringLiteralExpression) parent)) {
+                    attachFactoryClasses((StringLiteralExpression) parent, psiElements);
+                }
+
             }
 
             // \oxConfig::getConfigParam()
@@ -79,6 +93,7 @@ public class PhpGoToHandler implements GotoDeclarationHandler {
                 attachConfigs((StringLiteralExpression) parent, psiElements);
             }
 
+            // \oxLang::translateString()
             if (new MethodMatcher.StringParameterRecursiveMatcher(parent, 0)
                     .withSignature("\\oxLang", "translateString")
                     .match() != null) {
@@ -89,11 +104,6 @@ public class PhpGoToHandler implements GotoDeclarationHandler {
             // oxNew();
             // oxRegistry::get();
             if (OxidUtil.isFactory((StringLiteralExpression) parent)) {
-                attachFactoryClasses((StringLiteralExpression) parent, psiElements);
-            }
-
-            // ['extend' => ['key'] ]
-            if (PhpMetadataUtil.isExtendKey((StringLiteralExpression) parent)) {
                 attachFactoryClasses((StringLiteralExpression) parent, psiElements);
             }
 

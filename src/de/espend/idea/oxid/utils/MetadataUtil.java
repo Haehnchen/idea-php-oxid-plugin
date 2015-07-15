@@ -1,6 +1,8 @@
 package de.espend.idea.oxid.utils;
 
 import com.intellij.openapi.vfs.VirtualFile;
+import com.intellij.patterns.PlatformPatterns;
+import com.intellij.patterns.PsiElementPattern;
 import com.intellij.psi.PsiElement;
 import com.intellij.psi.PsiFile;
 import com.intellij.psi.util.PsiTreeUtil;
@@ -26,6 +28,10 @@ import java.util.Map;
  * @author Daniel Espendiller <daniel@espendiller.net>
  */
 public class MetadataUtil {
+
+    public static PsiElementPattern.Capture<PsiElement> getMetadataFilePattern() {
+        return PlatformPatterns.psiElement().inVirtualFile(PlatformPatterns.virtualFile().withName("metadata.php"));
+    }
 
     public static Collection<MetadataSetting> getSettings(@NotNull PsiFile psiFile) {
 

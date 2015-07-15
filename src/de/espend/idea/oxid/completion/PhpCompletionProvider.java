@@ -44,9 +44,10 @@ import java.util.*;
 public class PhpCompletionProvider extends CompletionContributor {
 
     public PhpCompletionProvider() {
-        
+
+        // ['extend' => ['key' => '<caret>'] ]
         extend(
-                CompletionType.BASIC, PlatformPatterns.psiElement(),
+                CompletionType.BASIC, MetadataUtil.getMetadataFilePattern(),
                 new CompletionProvider<CompletionParameters>() {
                     @Override
                     protected void addCompletions(final @NotNull CompletionParameters parameters, ProcessingContext context, final @NotNull CompletionResultSet result) {
@@ -78,8 +79,9 @@ public class PhpCompletionProvider extends CompletionContributor {
         );
 
 
+        // ['extend' => ['file' => '<caret>'] ]
         extend(
-                CompletionType.BASIC, PlatformPatterns.psiElement(),
+                CompletionType.BASIC, MetadataUtil.getMetadataFilePattern(),
                 new CompletionProvider<CompletionParameters>() {
                     @Override
                     protected void addCompletions(final @NotNull CompletionParameters parameters, ProcessingContext context, final @NotNull CompletionResultSet result) {
@@ -105,20 +107,21 @@ public class PhpCompletionProvider extends CompletionContributor {
                 }
         );
 
-
+        // ['files' => [...] ]
         extend(
-            CompletionType.BASIC, PlatformPatterns.psiElement(),
+            CompletionType.BASIC, MetadataUtil.getMetadataFilePattern(),
             new ModuleFileParametersCompletionProvider("files", PhpFileType.INSTANCE)
         );
 
+        // ['templates' => [...] ]
         extend(
-            CompletionType.BASIC, PlatformPatterns.psiElement(),
+            CompletionType.BASIC, MetadataUtil.getMetadataFilePattern(),
             new ModuleFileParametersCompletionProvider("templates", SmartyFileType.INSTANCE)
         );
 
         // "blocks" => [{"template" => 'foo'}]
         extend(
-                CompletionType.BASIC, PlatformPatterns.psiElement(),
+                CompletionType.BASIC, MetadataUtil.getMetadataFilePattern(),
                 new CompletionProvider<CompletionParameters>() {
                     @Override
                     protected void addCompletions(final @NotNull CompletionParameters parameters, ProcessingContext context, final @NotNull CompletionResultSet result) {
@@ -146,7 +149,7 @@ public class PhpCompletionProvider extends CompletionContributor {
 
         // "blocks" => [{"block" => 'foo'}]
         extend(
-                CompletionType.BASIC, PlatformPatterns.psiElement(),
+                CompletionType.BASIC, MetadataUtil.getMetadataFilePattern(),
                 new CompletionProvider<CompletionParameters>() {
                     @Override
                     protected void addCompletions(final @NotNull CompletionParameters parameters, ProcessingContext context, final @NotNull CompletionResultSet result) {
@@ -212,7 +215,7 @@ public class PhpCompletionProvider extends CompletionContributor {
                 }
         );
 
-        // \oxLang::translateString()
+        // oxRegistry::get, oxNew
         extend(
                 CompletionType.BASIC, PlatformPatterns.psiElement(),
                 new CompletionProvider<CompletionParameters>() {
@@ -266,7 +269,7 @@ public class PhpCompletionProvider extends CompletionContributor {
 
         // ['extend' => ['key'] ]
         extend(
-                CompletionType.BASIC, PlatformPatterns.psiElement(),
+                CompletionType.BASIC, MetadataUtil.getMetadataFilePattern(),
                 new CompletionProvider<CompletionParameters>() {
                     @Override
                     protected void addCompletions(final @NotNull CompletionParameters parameters, ProcessingContext context, final @NotNull CompletionResultSet result) {
