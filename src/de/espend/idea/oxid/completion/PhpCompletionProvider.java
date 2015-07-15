@@ -237,7 +237,7 @@ public class PhpCompletionProvider extends CompletionContributor {
                         }
 
                         String contents = ((StringLiteralExpression) parent).getContents();
-                        OxidUtil.getOverloadAbleClasses(parent.getProject(), contents);
+                        result.addAllElements(OxidUtil.getOverloadAbleClasses(parent.getProject(), contents));
                     }
                 }
         );
