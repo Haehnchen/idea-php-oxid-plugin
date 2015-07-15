@@ -1,7 +1,7 @@
 <idea-plugin version="2" url="https://github.com/Haehnchen/idea-php-oxid-plugin">
   <id>de.espend.idea.oxid</id>
   <name>OXID Plugin</name>
-  <version>0.2</version>
+  <version>0.2.1</version>
   <vendor email="daniel@espendiller.net" url="http://espend.de">Daniel Espendiller</vendor>
 
   <description><![CDATA[
@@ -35,6 +35,11 @@
     ]]></description>
 
   <change-notes><![CDATA[
+
+<h2>0.2.1</h2>
+<ul>
+    <li>Fix lookup elements for factory methods where collected in nowhere</li>
+</ul>
 
 <h2>0.2</h2>
 <ul>
