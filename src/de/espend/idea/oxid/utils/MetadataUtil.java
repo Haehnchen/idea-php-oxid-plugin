@@ -13,6 +13,7 @@ import com.jetbrains.php.lang.psi.elements.impl.AssignmentExpressionImpl;
 import de.espend.idea.oxid.dict.metadata.MetadataBlock;
 import de.espend.idea.oxid.dict.metadata.MetadataSetting;
 import fr.adrienbrault.idea.symfony2plugin.util.PhpElementsUtil;
+import org.apache.commons.lang.StringUtils;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
@@ -45,7 +46,7 @@ public class MetadataUtil {
                         continue;
                     }
 
-                    MetadataSetting block = MetadataSetting.create(firstPsiChild, PhpElementsUtil.getArrayKeyValueMap((ArrayCreationExpression) firstPsiChild));
+                    MetadataSetting block = MetadataSetting.create(firstPsiChild, getArrayKeyValueMapProxy((ArrayCreationExpression) firstPsiChild));
                     if(block != null) {
                         blocks.add(block);
                     }
@@ -77,7 +78,7 @@ public class MetadataUtil {
                         continue;
                     }
 
-                    MetadataBlock block = MetadataBlock.create(PhpElementsUtil.getArrayKeyValueMap((ArrayCreationExpression) firstPsiChild));
+                    MetadataBlock block = MetadataBlock.create(getArrayKeyValueMapProxy((ArrayCreationExpression) firstPsiChild));
                     if(block != null) {
                         blocks.add(block);
                     }
@@ -99,11 +100,31 @@ public class MetadataUtil {
         visitMetadataKey(psiFile, key, new MetadataKeyVisitor() {
             @Override
             public void visit(@NotNull ArrayCreationExpression arrayCreationExpression) {
-                values.putAll(PhpElementsUtil.getArrayKeyValueMap(arrayCreationExpression));
+                values.putAll(getArrayKeyValueMapProxy(arrayCreationExpression));
             }
         });
 
         return values;
+    }
+
+
+    /**
+     * GetArrayKeyValueMap adds null Value; proxy until fixed external
+     */
+    @NotNull
+    private static Map<String, String> getArrayKeyValueMapProxy(@NotNull ArrayCreationExpression arrayCreationExpression) {
+
+        Map<String, String> map = new HashMap<String, String>();
+
+        for (Map.Entry<String, String> entry : PhpElementsUtil.getArrayKeyValueMap(arrayCreationExpression).entrySet()) {
+            String value = entry.getValue();
+            String key = entry.getKey();
+            if(key != null && StringUtils.isNotBlank(key) && value != null && StringUtils.isNotBlank(value)) {
+                map.put(entry.getKey(), entry.getValue());
+            }
+        }
+
+        return map;
     }
 
     private static void visitMetadataKey(@NotNull PsiFile psiFile, @NotNull String key, @NotNull MetadataKeyVisitor visitor) {
