@@ -20,6 +20,7 @@ import com.intellij.util.ProcessingContext;
 import com.jetbrains.php.PhpIndex;
 import com.jetbrains.php.completion.PhpClassLookupElement;
 import com.jetbrains.php.lang.PhpFileType;
+import com.jetbrains.php.lang.parser.PhpElementTypes;
 import com.jetbrains.php.lang.psi.PhpFile;
 import com.jetbrains.php.lang.psi.PhpPsiUtil;
 import com.jetbrains.php.lang.psi.elements.*;
@@ -233,16 +234,7 @@ public class PhpCompletionProvider extends CompletionContributor {
                         }
 
                         String contents = ((StringLiteralExpression) parent).getContents();
-
-                        // @TODO: is there a class filter on oxid, so we provide completion only for
-                        // "extends" classes
-                        PhpIndex phpIndex = PhpIndex.getInstance(parent.getProject());
-                        for (String name : phpIndex.getAllClassNames(new CamelHumpMatcher(contents))) {
-                            for (PhpClass phpClass : phpIndex.getClassesByName(name)) {
-                                result.addElement(new PhpClassLookupElement(phpClass, true, PhpClassReferenceInsertHandler.getInstance()));
-                            }
-                        }
-
+                        OxidUtil.getOverloadAbleClasses(parent.getProject(), contents);
                     }
                 }
         );
@@ -270,6 +262,30 @@ public class PhpCompletionProvider extends CompletionContributor {
                     }
                 }
         );
+
+
+        // ['extend' => ['key'] ]
+        extend(
+                CompletionType.BASIC, PlatformPatterns.psiElement(),
+                new CompletionProvider<CompletionParameters>() {
+                    @Override
+                    protected void addCompletions(final @NotNull CompletionParameters parameters, ProcessingContext context, final @NotNull CompletionResultSet result) {
+
+                        PsiElement originalPosition = parameters.getOriginalPosition();
+                        if (originalPosition == null || !OxidProjectComponent.isValidForProject(originalPosition)) {
+                            return;
+                        }
+
+                        PsiElement parent = originalPosition.getParent();
+                        if(!(parent instanceof StringLiteralExpression) || !PhpMetadataUtil.isExtendKey((StringLiteralExpression) parent)) {
+                            return;
+                        }
+
+                        result.addAllElements(OxidUtil.getOverloadAbleClasses(parent.getProject(), ((StringLiteralExpression) parent).getContents()));
+                    }
+                }
+        );
+
     }
 
     private static class ModuleFileParametersCompletionProvider extends CompletionProvider<CompletionParameters> {

@@ -1,5 +1,8 @@
 package de.espend.idea.oxid.utils;
 
+import com.intellij.codeInsight.completion.CompletionResultSet;
+import com.intellij.codeInsight.completion.impl.CamelHumpMatcher;
+import com.intellij.codeInsight.lookup.LookupElement;
 import com.intellij.ide.plugins.PluginManager;
 import com.intellij.openapi.application.ApplicationInfo;
 import com.intellij.openapi.application.ApplicationManager;
@@ -9,11 +12,14 @@ import com.intellij.openapi.vfs.VirtualFile;
 import com.intellij.psi.PsiElement;
 import com.intellij.psi.PsiFile;
 import com.intellij.psi.PsiManager;
+import com.jetbrains.php.PhpIndex;
+import com.jetbrains.php.completion.PhpClassLookupElement;
 import com.jetbrains.php.lang.psi.PhpFile;
 import com.jetbrains.php.lang.psi.PhpPsiUtil;
 import com.jetbrains.php.lang.psi.elements.*;
 import fr.adrienbrault.idea.symfony2plugin.util.MethodMatcher;
 import fr.adrienbrault.idea.symfony2plugin.util.PhpElementsUtil;
+import fr.adrienbrault.idea.symfony2plugin.util.completion.PhpClassReferenceInsertHandler;
 import org.apache.commons.lang.StringUtils;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
@@ -156,6 +162,22 @@ public class OxidUtil {
             }
         });
 
+    }
+
+    public static Collection<LookupElement> getOverloadAbleClasses(@NotNull Project project, @NotNull String contents) {
+
+        Collection<LookupElement> elements = new ArrayList<LookupElement>();
+
+        // @TODO: is there a class filter on oxid, so we provide completion only for
+        // "extends" classes
+        PhpIndex phpIndex = PhpIndex.getInstance(project);
+        for (String name : phpIndex.getAllClassNames(new CamelHumpMatcher(contents))) {
+            for (PhpClass phpClass : phpIndex.getClassesByName(name)) {
+                elements.add(new PhpClassLookupElement(phpClass, true, PhpClassReferenceInsertHandler.getInstance()));
+            }
+        }
+
+        return elements;
     }
 
 }

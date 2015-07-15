@@ -1,11 +1,13 @@
 package de.espend.idea.oxid.utils;
 
 import com.intellij.psi.PsiElement;
+import com.intellij.util.Processor;
 import com.jetbrains.php.lang.parser.PhpElementTypes;
 import com.jetbrains.php.lang.psi.elements.ArrayCreationExpression;
 import com.jetbrains.php.lang.psi.elements.ArrayHashElement;
 import com.jetbrains.php.lang.psi.elements.PhpPsiElement;
 import com.jetbrains.php.lang.psi.elements.StringLiteralExpression;
+import fr.adrienbrault.idea.symfony2plugin.util.PhpElementsUtil;
 import org.jetbrains.annotations.NotNull;
 
 /**
@@ -84,6 +86,27 @@ public class PhpMetadataUtil {
         }
 
         return false;
+    }
+
+    public static boolean isExtendKey(@NotNull StringLiteralExpression parent) {
+
+        ArrayCreationExpression arrayCreation = PhpElementsUtil.getCompletableArrayCreationElement(parent);
+        if(arrayCreation == null) {
+            return false;
+        }
+
+        PsiElement arrayValue = arrayCreation.getParent();
+        if(arrayValue != null && arrayValue.getNode().getElementType() == PhpElementTypes.ARRAY_VALUE) {
+            PsiElement hashArray = arrayValue.getParent();
+            if(hashArray instanceof ArrayHashElement) {
+                PhpPsiElement key = ((ArrayHashElement) hashArray).getKey();
+                if(key instanceof StringLiteralExpression && "extend".equals(((StringLiteralExpression) key).getContents())) {
+                    return true;
+                }
+            }
+        }
+
+        return true;
     }
 
 }

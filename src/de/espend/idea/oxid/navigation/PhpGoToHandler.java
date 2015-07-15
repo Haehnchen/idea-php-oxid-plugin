@@ -92,6 +92,11 @@ public class PhpGoToHandler implements GotoDeclarationHandler {
                 attachFactoryClasses((StringLiteralExpression) parent, psiElements);
             }
 
+            // ['extend' => ['key'] ]
+            if (PhpMetadataUtil.isExtendKey((StringLiteralExpression) parent)) {
+                attachFactoryClasses((StringLiteralExpression) parent, psiElements);
+            }
+
         }
 
         return psiElements.toArray(new PsiElement[psiElements.size()]);
