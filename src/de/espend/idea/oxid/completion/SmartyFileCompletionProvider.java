@@ -12,6 +12,7 @@ import com.intellij.util.indexing.FileBasedIndex;
 import com.jetbrains.smarty.SmartyFileType;
 import de.espend.idea.oxid.OxidProjectComponent;
 import de.espend.idea.oxid.utils.TemplateUtil;
+import de.espend.idea.oxid.utils.TranslationUtil;
 import fr.adrienbrault.idea.symfony2plugin.stubs.SymfonyProcessors;
 import org.jetbrains.annotations.NotNull;
 import de.espend.idea.oxid.utils.SmartyPattern;
@@ -62,7 +63,25 @@ public class SmartyFileCompletionProvider extends CompletionContributor {
                 }
 
         );
-        
+
+        extend(
+                CompletionType.BASIC, SmartyPattern.getAttributeInsideTagPattern("ident", "oxmultilang"),
+                new CompletionProvider<CompletionParameters>() {
+                    @Override
+                    protected void addCompletions(@NotNull CompletionParameters parameters, ProcessingContext context, final @NotNull CompletionResultSet result) {
+
+                        PsiElement originalPosition = parameters.getOriginalPosition();
+                        if(!OxidProjectComponent.isValidForProject(originalPosition)) {
+                            return;
+                        }
+
+                        result.addAllElements(TranslationUtil.getTranslationLookupElements(originalPosition.getProject()));
+                    }
+
+                }
+
+        );
+
     }
 
     private void attachTemplateFiles(CompletionParameters parameters, final CompletionResultSet result) {

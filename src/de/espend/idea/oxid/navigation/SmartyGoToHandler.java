@@ -12,6 +12,7 @@ import de.espend.idea.oxid.OxidProjectComponent;
 import de.espend.idea.oxid.utils.SmartyBlockUtil;
 import de.espend.idea.oxid.utils.SmartyPattern;
 import de.espend.idea.oxid.utils.TemplateUtil;
+import de.espend.idea.oxid.utils.TranslationUtil;
 import org.apache.commons.lang.StringUtils;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
@@ -41,7 +42,21 @@ public class SmartyGoToHandler implements GotoDeclarationHandler {
             attachBlocks(psiElements, psiElement);
         }
 
+        if(SmartyPattern.getAttributeInsideTagPattern("ident", "oxmultilang").accepts(psiElement)) {
+            attachTranslations(psiElements, psiElement);
+        }
+
         return psiElements.toArray(new PsiElement[psiElements.size()]);
+    }
+
+    private void attachTranslations(@NotNull Collection<PsiElement> psiElements, @NotNull PsiElement psiElement) {
+
+        final String contents = psiElement.getText();
+        if(StringUtils.isBlank(contents)) {
+            return;
+        }
+
+        psiElements.addAll(TranslationUtil.getTranslationTargets(psiElement.getProject(), contents));
     }
 
     private void attachBlocks(@NotNull Collection<PsiElement> psiElements, @NotNull PsiElement psiElement) {
