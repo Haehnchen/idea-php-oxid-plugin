@@ -1,7 +1,7 @@
 <idea-plugin version="2" url="https://github.com/Haehnchen/idea-php-oxid-plugin">
   <id>de.espend.idea.oxid</id>
   <name>OXID Plugin</name>
-  <version>0.2.1</version>
+  <version>0.3</version>
   <vendor email="daniel@espendiller.net" url="http://espend.de">Daniel Espendiller</vendor>
 
   <description><![CDATA[
@@ -30,11 +30,18 @@
         <li>Smarty: Block references and linemarker</li>
         <li>Smarty: File includes references</li>
         <li>Smarty: File metadata parser for template related stuff</li>
+        <li>Smarty: Ident oxmultilang, oxcontent</li>
       </ul>
 
     ]]></description>
 
   <change-notes><![CDATA[
+
+<h2>0.3</h2>
+<ul>
+    <li>Implement traits generator for extend metadata class, so every module class knows foreign inheritance</li>
+    <li>Add support oxmultilang::ident and oxcontent::ident in smarty</li>
+</ul>
 
 <h2>0.2.1</h2>
 <ul>
@@ -77,6 +84,8 @@
       <codeInsight.lineMarkerProvider language="Smarty" implementationClass="de.espend.idea.oxid.navigation.SmartyTemplateLineMarkerProvider"/>
 
       <php.typeProvider2 implementation="de.espend.idea.oxid.types.OxidFactoryTypeProvider"/>
+
+      <fileBasedIndex implementation="de.espend.idea.oxid.stub.OxidContentIdentIndexer"/>
 
       <localInspection groupPath="Oxid" shortName="Oxid.Metadata" displayName="Oxid Metadata"
                        groupName="Oxid"

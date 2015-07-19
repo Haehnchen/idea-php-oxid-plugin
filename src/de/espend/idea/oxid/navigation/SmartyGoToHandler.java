@@ -46,7 +46,20 @@ public class SmartyGoToHandler implements GotoDeclarationHandler {
             attachTranslations(psiElements, psiElement);
         }
 
+        if(SmartyPattern.getAttributeInsideTagPattern("ident", "oxcontent").accepts(psiElement)) {
+            attachContentIdent(psiElements, psiElement);
+        }
+
         return psiElements.toArray(new PsiElement[psiElements.size()]);
+    }
+
+    private void attachContentIdent(@NotNull Collection<PsiElement> psiElements, @NotNull PsiElement psiElement) {
+        final String contents = psiElement.getText();
+        if(StringUtils.isBlank(contents)) {
+            return;
+        }
+
+        psiElements.addAll(TemplateUtil.getContentIdentsTargets(psiElement.getProject(), psiElement.getContainingFile().getVirtualFile(), contents));
     }
 
     private void attachTranslations(@NotNull Collection<PsiElement> psiElements, @NotNull PsiElement psiElement) {

@@ -8,12 +8,17 @@ import com.intellij.openapi.vfs.VirtualFile;
 import com.intellij.psi.PsiElement;
 import com.intellij.psi.PsiFile;
 import com.intellij.psi.PsiManager;
+import com.intellij.psi.PsiRecursiveElementWalkingVisitor;
 import com.intellij.psi.search.FileTypeIndex;
 import com.intellij.psi.search.FilenameIndex;
 import com.intellij.psi.search.GlobalSearchScope;
+import com.intellij.util.Processor;
 import com.intellij.util.indexing.FileBasedIndex;
+import com.intellij.util.indexing.FileBasedIndexImpl;
 import com.jetbrains.smarty.SmartyFileType;
 import de.espend.idea.oxid.OxidPluginIcons;
+import de.espend.idea.oxid.stub.OxidContentIdentIndexer;
+import fr.adrienbrault.idea.symfony2plugin.stubs.SymfonyProcessors;
 import org.apache.commons.lang.StringUtils;
 import org.jetbrains.annotations.NotNull;
 
@@ -147,5 +152,53 @@ public class TemplateUtil {
 
         return lookupElements;
     }
+
+    public static Set<String> getContentIdents(@NotNull Project project) {
+        SymfonyProcessors.CollectProjectUniqueKeys processor = new SymfonyProcessors.CollectProjectUniqueKeys(project, OxidContentIdentIndexer.KEY);
+        FileBasedIndex.getInstance().processAllKeys(OxidContentIdentIndexer.KEY, processor, project);
+        return processor.getResult();
+    }
+
+    public static Set<PsiElement> getContentIdentsTargets(final @NotNull Project project, final @NotNull VirtualFile currentFile, final @NotNull String ident) {
+
+        final Set<PsiElement> psiElements = new HashSet<PsiElement>();
+
+        FileBasedIndexImpl.getInstance().getFilesWithKey(OxidContentIdentIndexer.KEY, new HashSet<String>(Arrays.asList(ident)), new Processor<VirtualFile>() {
+            @Override
+            public boolean process(VirtualFile virtualFile) {
+
+                if (currentFile.equals(virtualFile)) {
+                    return true;
+                }
+
+                PsiFile psiFile = PsiManager.getInstance(project).findFile(virtualFile);
+                if (psiFile == null) {
+                    return true;
+                }
+
+                psiFile.acceptChildren(new PsiRecursiveElementWalkingVisitor() {
+                    @Override
+                    public void visitElement(PsiElement element) {
+
+                        if(SmartyPattern.getAttributeInsideTagPattern("ident", "oxcontent").accepts(element)) {
+                            String content = element.getText();
+                            if(StringUtils.isNotBlank(content) && content.equalsIgnoreCase(ident)) {
+                                psiElements.add(element);
+                            }
+                        }
+
+                        super.visitElement(element);
+                    }
+
+                });
+
+
+                return true;
+            }
+        }, GlobalSearchScope.getScopeRestrictedByFileTypes(GlobalSearchScope.allScope(project), SmartyFileType.INSTANCE));
+
+        return psiElements;
+    }
+
 
 }
