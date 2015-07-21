@@ -1,7 +1,7 @@
 <idea-plugin version="2" url="https://github.com/Haehnchen/idea-php-oxid-plugin">
   <id>de.espend.idea.oxid</id>
   <name>OXID Plugin</name>
-  <version>0.3</version>
+  <version>0.3.1</version>
   <vendor email="daniel@espendiller.net" url="http://espend.de">Daniel Espendiller</vendor>
 
   <description><![CDATA[
@@ -36,6 +36,12 @@
     ]]></description>
 
   <change-notes><![CDATA[
+
+<h2>0.3.1</h2>
+<ul>
+    <li>Support core "lang.php" for translations</li>
+    <li>Fix repeating File Cache Conflict since <a href="https://github.com/Haehnchen/idea-php-oxid-plugin/issues/4">#4</a></li>
+</ul>
 
 <h2>0.3</h2>
 <ul>
