@@ -17,7 +17,6 @@ import com.intellij.psi.PsiElement;
 import com.intellij.psi.PsiFile;
 import com.intellij.psi.PsiManager;
 import com.intellij.psi.codeStyle.CodeStyleManager;
-import com.intellij.util.Function;
 import com.intellij.util.containers.ContainerUtil;
 import com.jetbrains.php.PhpIndex;
 import com.jetbrains.php.completion.PhpClassLookupElement;
@@ -154,8 +153,7 @@ public class OxidUtil {
             PluginManager.getPlugin(PluginId.getId("de.espend.idea.oxid")).getVersion()
         );
 
-        return "<?php\n" +
-                "/**\n" +
+        return  "/**\n" +
                 " * An helper file for OXID, to provide autocomplete information to your IDE\n" +
                 " * Generated with " + info + " on " + new SimpleDateFormat("yyyy-MM-dd HH:mm:ss").format(Calendar.getInstance().getTime()) + ".\n" +
                 " *\n" +
@@ -233,7 +231,6 @@ public class OxidUtil {
             @Override
             protected void run(@NotNull Result<Void> result) throws Throwable {
 
-                final PsiFile psiFileFromText = PhpPsiElementFactory.createPsiFileFromText(project, content1[0]);
                 VirtualFile relativeFile = VfsUtil.findRelativeFile(project.getBaseDir(), PHPSTORM_OXID_META_PHP);
 
                 if(relativeFile == null) {
@@ -249,15 +246,19 @@ public class OxidUtil {
                     return;
                 }
 
-                PsiFile psiFile = PsiManager.getInstance(getProject()).findFile(relativeFile);
-                if(psiFile == null) {
+                final PsiFile psiFile = PsiManager.getInstance(getProject()).findFile(relativeFile);
+                if(psiFile == null || psiFile.getFirstChild() == null) {
                     return;
                 }
 
-                psiFile.getVirtualFile().setBinaryContent(content1[0].getBytes("UTF-8"));
-                psiFile.getVirtualFile().refresh(false, false);
-                
-                CodeStyleManager.getInstance(project).reformat(psiFile);
+                final PsiFile psiFileFromText = PhpPsiElementFactory.createPsiFileFromText(project, content1[0]);
+                CodeStyleManager.getInstance(project).reformat(psiFileFromText);
+                PsiElement firstChild = psiFileFromText.getFirstChild();
+                if(firstChild == null) {
+                    return;
+                }
+
+                psiFile.getFirstChild().replace(firstChild);
             }
         }.execute();
 
