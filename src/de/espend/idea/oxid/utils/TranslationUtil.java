@@ -28,7 +28,7 @@ public class TranslationUtil {
 
         for (VirtualFile virtualFile : FilenameIndex.getAllFilesByExt(project, "php", GlobalSearchScope.allScope(project))) {
 
-            if (!virtualFile.getName().endsWith("_lang.php")) {
+            if (!isTranslationFile(virtualFile)) {
                 continue;
             }
 
@@ -58,7 +58,7 @@ public class TranslationUtil {
 
         for (VirtualFile virtualFile : FilenameIndex.getAllFilesByExt(project, "php", GlobalSearchScope.allScope(project))) {
 
-            if (!virtualFile.getName().endsWith("_lang.php")) {
+            if (!isTranslationFile(virtualFile)) {
                 continue;
             }
 
@@ -77,5 +77,9 @@ public class TranslationUtil {
         }
 
         return targets;
+    }
+
+    private static boolean isTranslationFile(@NotNull VirtualFile virtualFile) {
+        return virtualFile.getName().endsWith("_lang.php") || virtualFile.getName().equalsIgnoreCase("lang.php");
     }
 }
