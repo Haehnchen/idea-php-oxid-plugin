@@ -99,8 +99,6 @@ public class MetadataUtil {
 
     public static Map<String, String> getMetadataKeyMap(@NotNull PsiFile psiFile, @NotNull String key) {
 
-        getBlocks(psiFile);
-
         final Map<String, String> values = new HashMap<String, String>();
 
         visitMetadataKey(psiFile, key, new MetadataKeyVisitor() {
