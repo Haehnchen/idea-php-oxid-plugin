@@ -1,7 +1,7 @@
 <idea-plugin version="2" url="https://github.com/Haehnchen/idea-php-oxid-plugin">
   <id>de.espend.idea.oxid</id>
   <name>OXID Plugin</name>
-  <version>0.3.1</version>
+  <version>0.4</version>
   <vendor email="daniel@espendiller.net" url="http://espend.de">Daniel Espendiller</vendor>
 
   <description><![CDATA[
@@ -36,6 +36,14 @@
     ]]></description>
 
   <change-notes><![CDATA[
+
+<h2>0.4</h2>
+<ul>
+    <li>Fix NullPointerException in visitMetadataKey <a href="https://github.com/Haehnchen/idea-php-oxid-plugin/issues/5">#5</a></li>
+    <li>fix modules without vendor are not in .phpstorm-oxid.meta.php <a href="https://github.com/Haehnchen/idea-php-oxid-plugin/issues/2">#2</a></li>
+    <li>Add cache for metadata getExtendsList, as this one is the slowest stuff</li>
+</li>
+</ul>
 
 <h2>0.3.1</h2>
 <ul>
