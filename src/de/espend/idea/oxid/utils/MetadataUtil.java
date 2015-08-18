@@ -140,7 +140,7 @@ public class MetadataUtil {
             return;
         }
 
-        for (Statement statement : PsiTreeUtil.getChildrenOfType(childOfType, Statement.class)) {
+        for (Statement statement : PsiTreeUtil.getChildrenOfTypeAsList(childOfType, Statement.class)) {
             PsiElement assignmentExpr = statement.getFirstPsiChild();
             if(assignmentExpr instanceof AssignmentExpressionImpl) {
                 PhpPsiElement variable = ((AssignmentExpressionImpl) assignmentExpr).getVariable();
