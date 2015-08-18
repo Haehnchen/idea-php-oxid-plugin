@@ -51,7 +51,7 @@ public class ModuleUtil {
 
     public static void visitModuleFile(@NotNull PsiFile metaFile, final @NotNull ModuleFileVisitor visitor) {
 
-        final VirtualFile moduleFolder = MetadataUtil.getModuleVendorFolderFromMetadata(metaFile);
+        final VirtualFile moduleFolder = MetadataUtil.getModuleVendorFolderFromMetadata(metaFile.getVirtualFile());
         if(moduleFolder == null) {
             return;
         }

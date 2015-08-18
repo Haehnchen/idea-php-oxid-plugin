@@ -198,12 +198,10 @@ public class MetadataUtil {
     /**
      * Find modules folder on "modules" or vendor structure
      *
-     * @param psiFile metadata file
+     * @param file metadata file
      */
     @Nullable
-    public static VirtualFile getModuleVendorFolderFromMetadata(@NotNull PsiFile psiFile) {
-
-        VirtualFile file = psiFile.getVirtualFile();
+    public static VirtualFile getModuleVendorFolderFromMetadata(@NotNull VirtualFile file) {
 
         // save previous we
         VirtualFile current = file;
@@ -225,23 +223,20 @@ public class MetadataUtil {
         return null;
     }
 
+    /**
+     * getModuleVendorFolderFromMetadata delivers our topmost "vendor module" folder
+     * We need to get the parent here, this should be our main path root
+     */
     @Nullable
-    public static VirtualFile getModuleDirectoryOnMetadata(@NotNull VirtualFile metadataFile) {
+    public static VirtualFile getModuleDirectoryOnMetadata(@NotNull VirtualFile file) {
 
-        VirtualFile file = metadataFile;
-        for ( int i = 0; i <= 2; i++) {
-            file = file.getParent();
-            if(file == null) {
-                return null;
-            }
-        }
-
-        VirtualFile parent = metadataFile.getParent();
-        if(parent == null) {
+        VirtualFile modulesDir = getModuleVendorFolderFromMetadata(file);
+        if(modulesDir == null) {
             return null;
         }
 
-        return file;
+        // should be "modules" folder
+        return modulesDir.getParent();
     }
 
 }
