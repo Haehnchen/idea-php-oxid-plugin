@@ -10,7 +10,6 @@ import com.jetbrains.php.PhpIndex;
 import com.jetbrains.php.lang.psi.PhpFile;
 import com.jetbrains.php.lang.psi.PhpPsiUtil;
 import com.jetbrains.php.lang.psi.elements.*;
-import com.jetbrains.php.lang.psi.elements.impl.FunctionReferenceImpl;
 import com.jetbrains.php.lang.psi.resolve.types.PhpTypeProvider2;
 import de.espend.idea.oxid.utils.ModuleUtil;
 import fr.adrienbrault.idea.symfony2plugin.util.PhpElementsUtil;
@@ -37,12 +36,12 @@ public class OxidFactoryTypeProvider implements PhpTypeProvider2 {
         if (DumbService.getInstance(e.getProject()).isDumb()) {
             return null;
         }
-        if(e instanceof FunctionReferenceImpl && "oxNew".equalsIgnoreCase(((FunctionReferenceImpl) e).getName())) {
-            PsiElement[] parameters = ((FunctionReferenceImpl) e).getParameters();
+        if(e instanceof FunctionReference && "oxNew".equalsIgnoreCase(((FunctionReference) e).getName())) {
+            PsiElement[] parameters = ((FunctionReference) e).getParameters();
             if(parameters.length > 0 && parameters[0] instanceof StringLiteralExpression) {
                 String contents = ((StringLiteralExpression) parameters[0]).getContents();
                 if(StringUtils.isNotBlank(contents)) {
-                    return ((FunctionReferenceImpl) e).getSignature() + TRIM_KEY + contents;
+                    return ((FunctionReference) e).getSignature() + TRIM_KEY + contents;
                 }
             }
         }
