@@ -212,15 +212,12 @@ public class OxidUtil {
 
         final String[] content1 = new String[] {null};
 
-        ApplicationManager.getApplication().runReadAction(new Runnable() {
-            @Override
-            public void run() {
-                final String content = OxidUtil.getPseudoClassOverwrites(project);
-                if (content == null) {
-                    return;
-                }
-                content1[0] = content;
+        ApplicationManager.getApplication().runReadAction(() -> {
+            final String content = OxidUtil.getPseudoClassOverwrites(project);
+            if (content == null) {
+                return;
             }
+            content1[0] = content;
         });
 
         if(content1[0] == null) {
