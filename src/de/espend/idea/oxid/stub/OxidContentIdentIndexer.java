@@ -1,6 +1,5 @@
 package de.espend.idea.oxid.stub;
 
-import com.intellij.openapi.vfs.VirtualFile;
 import com.intellij.psi.PsiElement;
 import com.intellij.psi.PsiFile;
 import com.intellij.psi.PsiRecursiveElementWalkingVisitor;
@@ -8,6 +7,7 @@ import com.intellij.util.indexing.*;
 import com.intellij.util.io.DataExternalizer;
 import com.intellij.util.io.EnumeratorStringDescriptor;
 import com.intellij.util.io.KeyDescriptor;
+import com.intellij.util.io.VoidDataExternalizer;
 import com.jetbrains.smarty.SmartyFileType;
 import de.espend.idea.oxid.utils.SmartyPattern;
 import gnu.trove.THashMap;
@@ -40,7 +40,7 @@ public class OxidContentIdentIndexer extends FileBasedIndexExtension<String, Voi
             public Map<String, Void> map(@NotNull FileContent inputData) {
 
                 PsiFile psiFile = inputData.getPsiFile();
-                final Map<String, Void> map = new THashMap<String, Void>();
+                final Map<String, Void> map = new THashMap<>();
 
                 psiFile.acceptChildren(new PsiRecursiveElementWalkingVisitor() {
                     @Override
@@ -73,18 +73,13 @@ public class OxidContentIdentIndexer extends FileBasedIndexExtension<String, Voi
     @NotNull
     @Override
     public DataExternalizer<Void> getValueExternalizer() {
-        return ScalarIndexExtension.VOID_DATA_EXTERNALIZER;
+        return VoidDataExternalizer.INSTANCE;
     }
 
     @NotNull
     @Override
     public FileBasedIndex.InputFilter getInputFilter() {
-        return new FileBasedIndex.InputFilter() {
-            @Override
-            public boolean acceptInput(@NotNull VirtualFile file) {
-                return file.getFileType() == SmartyFileType.INSTANCE;
-            }
-        };
+        return file -> file.getFileType() == SmartyFileType.INSTANCE;
     }
 
     @Override
