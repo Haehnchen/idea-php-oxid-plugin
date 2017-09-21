@@ -79,7 +79,7 @@
   </change-notes>
 
   <!-- please see http://confluence.jetbrains.com/display/IDEADEV/Build+Number+Ranges for description -->
-  <idea-version since-build="138.0"/>
+  <idea-version since-build="171.3780"/>
 
   <!-- please see http://confluence.jetbrains.com/display/IDEADEV/Plugin+Compatibility+with+IntelliJ+Platform+Products
        on how to target different products -->
@@ -97,7 +97,6 @@
 
       <codeInsight.lineMarkerProvider language="Smarty" implementationClass="de.espend.idea.oxid.navigation.SmartyTemplateLineMarkerProvider"/>
 
-      <php.typeProvider2 implementation="de.espend.idea.oxid.types.OxidFactoryTypeProvider"/>
 
       <fileBasedIndex implementation="de.espend.idea.oxid.stub.OxidContentIdentIndexer"/>
 
@@ -106,6 +105,10 @@
                        enabledByDefault="true" level="WARNING"
                        implementationClass="de.espend.idea.oxid.inspection.OxidMetadataFileInspection"/>
 
+  </extensions>
+
+  <extensions defaultExtensionNs="com.jetbrains.php">
+      <typeProvider3 implementation="de.espend.idea.oxid.types.OxidFactoryTypeProvider"/>
   </extensions>
 
   <depends>com.jetbrains.php</depends>

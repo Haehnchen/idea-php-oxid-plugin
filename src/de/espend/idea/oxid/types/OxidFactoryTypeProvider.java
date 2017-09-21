@@ -1,6 +1,5 @@
 package de.espend.idea.oxid.types;
 
-import com.intellij.openapi.project.DumbService;
 import com.intellij.openapi.project.Project;
 import com.intellij.openapi.vfs.VirtualFile;
 import com.intellij.psi.PsiElement;
@@ -10,7 +9,8 @@ import com.jetbrains.php.PhpIndex;
 import com.jetbrains.php.lang.psi.PhpFile;
 import com.jetbrains.php.lang.psi.PhpPsiUtil;
 import com.jetbrains.php.lang.psi.elements.*;
-import com.jetbrains.php.lang.psi.resolve.types.PhpTypeProvider2;
+import com.jetbrains.php.lang.psi.resolve.types.PhpType;
+import com.jetbrains.php.lang.psi.resolve.types.PhpTypeProvider3;
 import de.espend.idea.oxid.utils.ModuleUtil;
 import fr.adrienbrault.idea.symfony2plugin.util.PhpElementsUtil;
 import fr.adrienbrault.idea.symfony2plugin.util.PhpTypeProviderUtil;
@@ -19,10 +19,8 @@ import org.jetbrains.annotations.Nullable;
 
 import java.util.*;
 
-public class OxidFactoryTypeProvider implements PhpTypeProvider2 {
-
-
-    final static char TRIM_KEY = '\u0180';
+public class OxidFactoryTypeProvider implements PhpTypeProvider3 {
+    final private static char TRIM_KEY = '\u0180';
 
     @Override
     public char getKey() {
@@ -31,31 +29,29 @@ public class OxidFactoryTypeProvider implements PhpTypeProvider2 {
 
     @Nullable
     @Override
-    public String getType(PsiElement e) {
-
-        if (DumbService.getInstance(e.getProject()).isDumb()) {
-            return null;
-        }
+    public PhpType getType(PsiElement e) {
         if(e instanceof FunctionReference && "oxNew".equalsIgnoreCase(((FunctionReference) e).getName())) {
             PsiElement[] parameters = ((FunctionReference) e).getParameters();
             if(parameters.length > 0 && parameters[0] instanceof StringLiteralExpression) {
                 String contents = ((StringLiteralExpression) parameters[0]).getContents();
                 if(StringUtils.isNotBlank(contents)) {
-                    return ((FunctionReference) e).getSignature() + TRIM_KEY + contents;
+                    String signature = PhpTypeProviderUtil.getReferenceSignatureByFirstParameter((FunctionReference) e, TRIM_KEY);
+                    return signature == null ? null : new PhpType().add("#" + this.getKey() + signature);
                 }
             }
         }
 
         // container calls are only on "get" methods
         if(e instanceof MethodReference && PhpElementsUtil.isMethodWithFirstStringOrFieldReference(e, "get")) {
-            return PhpTypeProviderUtil.getReferenceSignature((MethodReference) e, TRIM_KEY);
+            String signature = PhpTypeProviderUtil.getReferenceSignatureByFirstParameter((FunctionReference) e, TRIM_KEY);
+            return signature == null ? null : new PhpType().add("#" + this.getKey() + signature);
         }
 
         return null;
     }
 
     @Override
-    public Collection<? extends PhpNamedElement> getBySignature(String expression, Project project) {
+    public Collection<? extends PhpNamedElement> getBySignature(String expression, Set<String> visited, int depth, Project project) {
 
         int endIndex = expression.lastIndexOf(TRIM_KEY);
         if(endIndex == -1) {
