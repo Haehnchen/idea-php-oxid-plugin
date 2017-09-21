@@ -1,21 +1,21 @@
-<idea-plugin version="2" url="https://github.com/Haehnchen/idea-php-oxid-plugin">
+<idea-plugin url="https://github.com/Haehnchen/idea-php-oxid-plugin">
   <id>de.espend.idea.oxid</id>
   <name>OXID Plugin</name>
-  <version>0.4</version>
+  <version>0.5</version>
   <vendor email="daniel@espendiller.net" url="http://espend.de">Daniel Espendiller</vendor>
 
   <description><![CDATA[
       <h1>OXID Plugin</h1><br>
       <br/>
-      <a href="https://github.com/Haehnchen/idea-php-oxid-plugin/issues">Issues</a>
+      <a href="https://github.com/Haehnchen/idea-php-oxid-plugin/issues">Issues</a> | <a href="https://www.paypal.me/DanielEspendiller">Donate</a>
 
       <br>
-      Because of code sharing install <a href="http://plugins.jetbrains.com/plugin/7219">Symfony2 Plugin</a> and enable it per project
+      Because of code sharing install <a href="https://plugins.jetbrains.com/plugin/7219">Symfony Plugin</a> and enable it per project
       <br/><br/>
 
       <h2>Dependencies</h2>
       <ul>
-        <li><a href="http://plugins.jetbrains.com/plugin/7219">Symfony2 Plugin</a></li>
+        <li><a href="http://plugins.jetbrains.com/plugin/7219">Symfony Plugin</a></li>
       </ul>
 
       <h2>Features</h2>
@@ -36,45 +36,14 @@
     ]]></description>
 
   <change-notes><![CDATA[
-
-<h2>0.4</h2>
 <ul>
-    <li>Fix NullPointerException in visitMetadataKey <a href="https://github.com/Haehnchen/idea-php-oxid-plugin/issues/5">#5</a></li>
-    <li>fix modules without vendor are not in .phpstorm-oxid.meta.php <a href="https://github.com/Haehnchen/idea-php-oxid-plugin/issues/2">#2</a></li>
-    <li>Add cache for metadata getExtendsList, as this one is the slowest stuff</li>
-</li>
+    <li>Move OxidMetadataFileInspection into PsiElementVisitor</li>
+    <li>Migration to PhpTypeProvider3 for PhpStorm 2017.3 <a href="https://github.com/Haehnchen/idea-php-oxid-plugin/issues/12">#12</a></li>
+    <li>Fix com.intellij.openapi.project.IndexNotReadyException in custom trait generator for class overwrites <a href="https://github.com/Haehnchen/idea-php-oxid-plugin/issues/10">#10</a></li>
 </ul>
 
-<h2>0.3.1</h2>
-<ul>
-    <li>Support core "lang.php" for translations</li>
-    <li>Fix repeating File Cache Conflict since <a href="https://github.com/Haehnchen/idea-php-oxid-plugin/issues/4">#4</a></li>
-</ul>
-
-<h2>0.3</h2>
-<ul>
-    <li>Implement traits generator for extend metadata class, so every module class knows foreign inheritance</li>
-    <li>Add support oxmultilang::ident and oxcontent::ident in smarty</li>
-</ul>
-
-<h2>0.2.1</h2>
-<ul>
-    <li>Fix lookup elements for factory methods where collected in nowhere</li>
-</ul>
-
-<h2>0.2</h2>
-<ul>
-    <li>proxy getArrayKeyValueMap for npe fix <a href="https://github.com/Haehnchen/idea-php-oxid-plugin/issues/1">#1</a></li>
-    <li>Recursive search for module or vendor module structure <a href="https://github.com/Haehnchen/idea-php-oxid-plugin/issues/2">#2</a></li>
-    <li>Support array key of "extend" in metadata <a href="https://github.com/Haehnchen/idea-php-oxid-plugin/issues/3">#3</a></li>
-    <li>Some performance improvements</li>
-</ul>
-
-<h2>0.1</h2>
-<ul>
-    <li>Initial release with dep on <a href="http://plugins.jetbrains.com/plugin/7219">Symfony2 Plugin</a></li>
-</ul>
-
+<br/>
+<a href="https://github.com/Haehnchen/idea-php-oxid-plugin/blob/master/CHANGELOG.md">see full changelog</a> | <a href="https://www.paypal.me/DanielEspendiller">Donate</a>
     ]]>
   </change-notes>
 
