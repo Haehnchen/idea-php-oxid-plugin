@@ -33,14 +33,14 @@ public class OxidMetadataFileInspection extends LocalInspectionTool {
             return super.buildVisitor(holder, isOnTheFly);
         }
 
-        psiFile.acceptChildren(new MyPsiRecursiveElementWalkingVisitor(holder));
-        return super.buildVisitor(holder, isOnTheFly);
+        return new MyPsiRecursiveElementWalkingVisitor(holder);
     }
 
-    private static class MyPsiRecursiveElementWalkingVisitor extends PsiRecursiveElementWalkingVisitor {
+    private static class MyPsiRecursiveElementWalkingVisitor extends PsiElementVisitor {
+        @NotNull
         private final ProblemsHolder holder;
 
-        public MyPsiRecursiveElementWalkingVisitor(ProblemsHolder holder) {
+        private MyPsiRecursiveElementWalkingVisitor(@NotNull ProblemsHolder holder) {
             this.holder = holder;
         }
 
@@ -54,7 +54,7 @@ public class OxidMetadataFileInspection extends LocalInspectionTool {
             super.visitElement(element);
         }
 
-        public void visitLiteralExpression(StringLiteralExpression element) {
+        private void visitLiteralExpression(StringLiteralExpression element) {
 
             // @TODO: refactor in providers
             if(PhpMetadataUtil.isModuleKeyInFlatArray(element, "extend")) {
