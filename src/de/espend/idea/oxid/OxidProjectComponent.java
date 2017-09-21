@@ -92,17 +92,13 @@ public class OxidProjectComponent implements ProjectComponent {
     }
 
     public static boolean isValidForProject(@Nullable PsiElement psiElement) {
-        if(psiElement == null) return false;
-
-        /*
-        if(VfsUtil.findRelativeFile(psiElement.getProject().getBaseDir(), "engine", "Shopware", "Kernel.php") != null) {
-            return true;
+        if(psiElement == null) {
+            return false;
         }
 
-        if(PhpElementsUtil.getClassInterface(psiElement.getProject(), "\\Enlight_Controller_Action") != null) {
-            return true;
-        }
-        */
+        // @TODO: plugin switch
+        // VfsUtil.findRelativeFile(psiElement.getProject().getBaseDir(), "engine", "Shopware", "Kernel.php") != null
+        // PhpElementsUtil.getClassInterface(psiElement.getProject(), "\\Enlight_Controller_Action") != null
 
         return true;
     }
